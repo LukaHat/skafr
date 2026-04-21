@@ -19,10 +19,12 @@
     "node": ">=22"
   },
   "dependencies": {
-    "commander": "^14.0.3"
+    "commander": "^14.0.3",
+    "pluralize": "^8.0.0"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
+    "@types/pluralize": "^0.0.33",
     "typescript": "^6.0.2"
   }
 }
