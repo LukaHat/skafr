@@ -4,16 +4,11 @@ import { SkafConfig, SupportedStacks } from "./types";
 
 export const loadConfig = (): SkafConfig => {
   const configPath = path.join(process.cwd(), ".skafc");
+  let parsedConfig: unknown;
 
   try {
     const rawConfig = fs.readFileSync(configPath, "utf-8");
-    const parsedConfig = JSON.parse(rawConfig);
-
-    if (!isSkafConfig(parsedConfig))
-      throw new Error(
-        'Invalid .skafc: missing or invalid required fields "stack" and "srcDir". srcDir should be a path to your source directory and stack should be one of the supported stacks. Please check https://github.com/LukaHat/skaf',
-      );
-    return parsedConfig as SkafConfig;
+    parsedConfig = JSON.parse(rawConfig);
   } catch (error) {
     if (error instanceof Error && (error as any).code === "ENOENT") {
       throw new Error(
@@ -28,6 +23,12 @@ export const loadConfig = (): SkafConfig => {
     }
     throw new Error(`Could not load .skaf config: ${(error as Error).message}`);
   }
+
+  if (!isSkafConfig(parsedConfig))
+    throw new Error(
+      'Invalid .skafc: missing or invalid required fields "stack" and "srcDir". srcDir should be a path to your source directory and stack should be one of the supported stacks. Please check https://github.com/LukaHat/skaf',
+    );
+  return parsedConfig as SkafConfig;
 };
 
 const isSkafConfig = (objectToCheck: unknown): objectToCheck is SkafConfig => {
