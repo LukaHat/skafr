@@ -6,7 +6,8 @@ import path from "path";
 const toPascalCase = (resourceName: string) =>
   resourceName
     .toLowerCase()
-    .split(/[\s-_]/)
+    .split(/[\s_-]/)
+    .filter(Boolean)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join("");
 
@@ -16,13 +17,18 @@ const toCamelCase = (resourceName: string) => {
 };
 export const buildResourceContext = (resourceName: string) => {
   const normalized = resourceName.trim();
+  if (!normalized) throw new Error("resource name must not be empty");
+
+  const sanitized = normalized.replace(/[^a-zA-Z0-9\s_-]/g, "").trim();
+  if (!sanitized)
+    throw new Error("resourceName must contain alphanumeric characters");
 
   return {
-    resourceClass: toPascalCase(normalized),
-    resourceVar: toCamelCase(normalized),
-    resourceFile: normalized.toLowerCase().replace(/\s+/g, "-"),
+    resourceClass: toPascalCase(sanitized),
+    resourceVar: toCamelCase(sanitized),
+    resourceFile: sanitized.toLowerCase().replace(/\s+/g, "-"),
     //force pluralize with count 2
-    resourceRoute: pluralize(normalized.toLowerCase(), 2),
+    resourceRoute: pluralize(sanitized.toLowerCase(), 2),
   };
 };
 
