@@ -1,6 +1,13 @@
 export enum SupportedStacks {
-  express = "ExpressJs",
-  react = "ReactJs",
+  express = "express",
+}
+
+export enum SupportedOrms {
+  sequelize = "sequelize",
+}
+
+export enum SupportedDBs {
+  postgres = "postgres",
 }
 
 export type SkafConfig = {
@@ -13,4 +20,11 @@ export type ResourceContext = {
   resourceVar: string;
   resourceFile: string;
   resourceRoute: string;
+};
+
+export type InitOptions = {
+  stack: SupportedStacks;
+  auth: boolean;
+  orm: SupportedOrms;
+  db: SupportedDBs;
 };
