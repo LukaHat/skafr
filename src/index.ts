@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { program } from "commander";
+import { Option, program } from "commander";
 import { version } from "../package.json";
 import { initCommand } from "./commands/init";
 import { SupportedDBs, SupportedOrms, SupportedStacks } from "./types";
@@ -14,29 +14,29 @@ program
 
 program
   .command("init <project-name>")
-  .option(
-    "-s, --stack <stack>",
-    "choose the stack for the project",
-    SupportedStacks.express,
+  .addOption(
+    new Option("-s, --stack <stack>", "choose the stack for the project")
+      .choices([...Object.values(SupportedStacks)])
+      .default(SupportedStacks.express),
+  )
+  .addOption(
+    new Option("--orm <orm>", "choose which orm you want to use")
+      .choices([...Object.values(SupportedOrms)])
+      .default(SupportedOrms.sequelize),
+  )
+  .addOption(
+    new Option("--db <db>", "choose which database you want to use")
+      .choices([...Object.values(SupportedDBs)])
+      .default(SupportedDBs.postgres),
   )
   .option(
-    "--orm <orm>",
-    "choose which orm you want to use",
-    SupportedOrms.sequelize,
-  )
-  .option(
-    "--db <db>",
-    "choose which database you want to use",
-    SupportedDBs.postgres,
-  )
-  .option(
-    "-a,  --auth",
+    "-a, --auth",
     "choose whether to have auth system already implemented",
     true,
   )
   .description("Initialize a new project with the given name")
-  .action((projectName, options) => {
-    initCommand(projectName, options);
+  .action(async (projectName, options) => {
+    await initCommand(projectName, options);
   });
 
 program
