@@ -1,0 +1,53 @@
+src/
+├── controllers/     # HTTP handlers only — no business logic
+├── routes/          # Router definitions — wire controllers to endpoints
+├── models/          # TypeScript types and interfaces
+├── middleware/      # Express middleware
+├── repositories/    # All database access — never query DB outside here
+├── utils/       
+└── config.ts        # Environment variables — never use process.env directly
+
+## Naming Conventions
+- Files: `camelCase.ts` (e.g. `userController.ts`, `userModel.ts`)
+- Classes/Types/Interfaces: `PascalCase` (e.g. `UserRepository`)
+- Functions/Variables: `camelCase` (e.g. `getUserById`)
+- Routes: plural lowercase (e.g. `/users`, `/auth`)
+
+## Architecture Patterns
+
+### Route Registration
+Routes are registered through a main API router in `app.ts`:
+```typescript
+app.use('/api', apiRouter)
+// apiRouter registers: /auth, /users etc.
+```
+
+### Error Handling
+Controllers use try/catch and forward to global error middleware:
+```typescript
+try {
+  // handler logic
+} catch (error) {
+  next(error)
+}
+```
+Custom error classes live in `utils/errors.ts` extending the base `Error` class.
+
+### Repository Pattern
+All database queries live in repositories. Controllers never access the database directly — they call repository methods only.
+
+### Business Logic
+Controllers handle HTTP concerns only. Extract any reusable logic to `utils/helpers.ts`. Simple one-off transformations can live in controllers but should not query the database or call external services.
+
+## Environment Variables
+Never access `process.env` directly. Always import from `src/config.ts`:
+```typescript
+import { config } from './config'
+config.PORT
+```
+
+## What NOT To Do
+- Never put database queries in controllers
+- Never access `process.env` directly — use `config`
+- Never put business logic in repositories
+- Never skip the error middleware — always call `next(error)` in catch blocks

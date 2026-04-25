@@ -1,5 +1,12 @@
 import { InitOptions } from "../types";
-import { mkdirSync, existsSync, writeFileSync, rmSync, readFileSync } from "fs";
+import {
+  mkdirSync,
+  existsSync,
+  writeFileSync,
+  rmSync,
+  readFileSync,
+  symlinkSync,
+} from "fs";
 import { confirm } from "@inquirer/prompts";
 import { join } from "path";
 import { cwd } from "process";
@@ -31,6 +38,7 @@ export const initCommand = async (
       "src/models",
       "src/middleware",
       "src/repositories",
+      "src/utils",
     ];
 
     mkdirSync(join(cwd(), projectName));
@@ -124,6 +132,22 @@ export const initCommand = async (
       throw new Error(
         `npm install failed: ${installResult.error?.message ?? `exit code ${installResult.status}`}`,
       );
+
+    const mainAgentsFile = readFileSync(
+      join(
+        __dirname,
+        "..",
+        "templates",
+        "express",
+        "init",
+        "AGENTS.md.template",
+      ),
+      "utf-8",
+    );
+
+    writeFileSync(join(cwd(), projectName, "AGENTS.md"), mainAgentsFile);
+
+    symlinkSync("./AGENTS.md", join(cwd(), projectName, "CLAUDE.md"), "file");
   } catch (error) {
     throw new Error(`Failed to scaffold project: ${(error as Error).message}`);
   }
