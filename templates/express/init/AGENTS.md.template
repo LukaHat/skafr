@@ -5,6 +5,7 @@ src/
 ├── middleware/      # Express middleware
 ├── repositories/    # All database access — never query DB outside here
 └── config.ts        # Environment variables — never use process.env directly
+├── utils/           # Custom errors and shared helpers
 
 ## Naming Conventions
 - Files: `camelCase.ts` (e.g. `userController.ts`, `userModel.ts`)
@@ -36,7 +37,7 @@ Custom error classes live in `utils/errors.ts` extending the base `Error` class.
 All database queries live in repositories. Controllers never access the database directly — they call repository methods only.
 
 ### Business Logic
-Keep business logic in controllers for simple cases. Extract reusable logic to `utils/helpers.ts` when it pollutes controllers or is needed in multiple places.
+Controllers handle HTTP concerns only. Extract any reusable logic to `utils/helpers.ts`. Simple one-off transformations can live in controllers but should not query the database or call external services.
 
 ## Environment Variables
 Never access `process.env` directly. Always import from `src/config.ts`:

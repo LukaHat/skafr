@@ -38,6 +38,7 @@ export const initCommand = async (
       "src/models",
       "src/middleware",
       "src/repositories",
+      "src/utils",
     ];
 
     mkdirSync(join(cwd(), projectName));
