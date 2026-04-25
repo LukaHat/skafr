@@ -115,10 +115,15 @@ export const initCommand = async (
 
     writeFileSync(join(cwd(), projectName, "tsconfig.json"), tsConfig);
 
-    spawnSync("npm", ["install"], {
+    const installResult = spawnSync("npm", ["install"], {
       cwd: join(cwd(), projectName),
       stdio: "inherit",
     });
+
+    if (installResult.error || installResult.status !== 0)
+      throw new Error(
+        `npm install failed: ${installResult.error?.message ?? `exit code ${installResult.status}`}`,
+      );
   } catch (error) {
     throw new Error(`Failed to scaffold project: ${(error as Error).message}`);
   }
