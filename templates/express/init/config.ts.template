@@ -1,0 +1,24 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const getRequiredEnvironmentVariable = (variable: string) => {
+  const envVariable = process.env[variable];
+  if (!envVariable) {
+    console.log(`Process exited: Missing required env variable: ${variable}`);
+    process.exit(1);
+  }
+
+  return envVariable;
+};
+
+const getOptionalEnvironmentVariable = (variable: string) => {
+  const envVariable = process.env[variable];
+  return envVariable ?? undefined;
+};
+
+export const config = {
+  PORT: getRequiredEnvironmentVariable("PORT"),
+  DB_URI: getRequiredEnvironmentVariable("DB_URI"),
+  JWT_SECRET: getRequiredEnvironmentVariable("JWT_SECRET"),
+};
