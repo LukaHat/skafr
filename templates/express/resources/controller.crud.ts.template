@@ -25,6 +25,7 @@ export class {{resourceClass}}Controller {
         try{
             const id = req.params.id as string
             const result = await this._{{resourceVar}}Repository.getById(id)
+            if(!result) throw new Error(`Something went wrong when fetching {{resourceVar}} with id: ${id}`)
             
             res.json(result)
         } catch(error){
@@ -48,7 +49,7 @@ export class {{resourceClass}}Controller {
             const id = req.params.id as string
             const {{resourceVar}}UpdateData = req.body
             const updated = await this._{{resourceVar}}Repository.update(id,{{resourceVar}}UpdateData)
-           if(!updated) throw new Error(`Something went wrong when updating {{resourceVar}} with id: ${id}`)
+            if(!updated) throw new Error(`Something went wrong when updating {{resourceVar}} with id: ${id}`)
 
             res.json(updated)
         } catch(error){

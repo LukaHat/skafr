@@ -1,7 +1,6 @@
 
 import { injectable } from "inversify"
 import { {{resourceClass}}Attributes, Create{{resourceClass}}Attributes, Update{{resourceClass}}Attributes } from '../models/{{resourceFile}}Model'
-import { {{resourceClass}}, {{resourceClass}}Attributes, Create{{resourceClass}}Attributes, Update{{resourceClass}}Attributes } from '../models/{{resourceFile}}Model'
 
 @injectable()
 export class {{resourceClass}}Repository{
