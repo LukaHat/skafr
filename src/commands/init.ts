@@ -81,6 +81,19 @@ export const initCommand = async (
 
     writeFileSync(join(cwd(), projectName, "src", "server.ts"), server);
 
+    const apiRouter = readFileSync(
+      join(
+        __dirname,
+        "..",
+        "templates",
+        "express",
+        "init",
+        "apiRouter.ts.template",
+      ),
+      "utf-8",
+    );
+    writeFileSync(join(cwd(), projectName, "src", "apiRouter.ts"), apiRouter);
+
     const config = readFileSync(
       join(
         __dirname,

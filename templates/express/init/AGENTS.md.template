@@ -4,6 +4,7 @@ src/
 ├── models/          # TypeScript types and interfaces
 ├── middleware/      # Express middleware
 ├── repositories/    # All database access — never query DB outside here
+├── apiRouter.ts     # Mounts all resource routers under /api
 ├── utils/       
 └── config.ts        # Environment variables — never use process.env directly
 

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { loadConfig } from "../config";
 import { buildResourceContext, renderTemplate } from "../templateEngine";
 import { join } from "path";
@@ -104,6 +104,28 @@ export const addCommand = (
     renderTemplate(controllerTemplate, casingVariants, controllerPath);
     renderTemplate(repositoryTemplate, casingVariants, repositoryPath);
     renderTemplate(routerTemplate, casingVariants, routerPath);
+
+    const apiRouterPath = join(config.srcDir, "apiRouter.ts");
+    const apiRouterContent = readFileSync(apiRouterPath, "utf-8");
+
+    const importLine = `import ${casingVariants.resourceVar}Router from './routes/${casingVariants.resourceFile}Router'`;
+
+    if (!apiRouterContent.includes(importLine)) {
+      const lines = apiRouterContent.split("\n");
+      const exportIndex = lines.findIndex((line) =>
+        line.includes("export default apiRouter"),
+      );
+
+      lines.splice(
+        exportIndex,
+        0,
+        `apiRouter.use('/${casingVariants.resourceRoute}', ${casingVariants.resourceVar}Router)`,
+      );
+
+      lines.splice(0, 0, importLine);
+
+      writeFileSync(apiRouterPath, lines.join("\n"));
+    }
   } catch (error) {
     throw new Error(`Failed to generate resource: ${(error as Error).message}`);
   }
