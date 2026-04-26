@@ -1,0 +1,27 @@
+
+import { injectable } from "inversify"
+import { {{resourceClass}}Attributes, Create{{resourceClass}}Attributes, Update{{resourceClass}}Attributes } from '../models/{{resourceFile}}Model'
+
+@injectable()
+export class {{resourceClass}}Repository{
+
+    getAll = async (): Promise<{{resourceClass}}Attributes[]> => {
+        return await {{resourceClass}}.findAll()
+    }
+
+    getById = async (id: string): Promise<{{resourceClass}}Attributes> => {
+        return await {{resourceClass}}.findByPk(id)
+    }
+
+    create = async (data: Create{{resourceClass}}Attributes): Promise<{{resourceClass}}Attributes> => {
+        return await {{resourceClass}}.create(data)
+    }
+
+    update = async (id: string, data: Update{{resourceClass}}Attributes): Promise<{{resourceClass}}Attributes | null> => {
+        return await {{resourceClass}}.update(data, {where: {id}})
+    }
+
+    delete = async (id: string) => {
+        return await {{resourceClass}}.destroy({where: {id}})
+    }
+}

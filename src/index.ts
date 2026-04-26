@@ -43,6 +43,11 @@ program
 program
   .command("add <resource>")
   .option("-f, --force", "overwrite existing files", false)
+  .option(
+    "--crud",
+    "generate controllers and repositories with existing crud implementations",
+    false,
+  )
   .description("Implement scaffolding for given resource")
   .action((resource, options) => {
     addCommand(resource, options);

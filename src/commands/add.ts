@@ -3,7 +3,10 @@ import { loadConfig } from "../config";
 import { buildResourceContext, renderTemplate } from "../templateEngine";
 import { join } from "path";
 
-export const addCommand = (resource: string, options: { force: boolean }) => {
+export const addCommand = (
+  resource: string,
+  options: { force: boolean; crud: boolean },
+) => {
   try {
     const config = loadConfig();
     const casingVariants = buildResourceContext(resource);
@@ -47,7 +50,7 @@ export const addCommand = (resource: string, options: { force: boolean }) => {
         "templates",
         "express",
         "resources",
-        "controller.ts.template",
+        options.crud ? "controller.crud.ts.template" : "controller.ts.template",
       ),
       "utf-8",
     );
@@ -69,7 +72,7 @@ export const addCommand = (resource: string, options: { force: boolean }) => {
         "templates",
         "express",
         "resources",
-        "repository.ts.template",
+        options.crud ? "repository.crud.ts.template" : "repository.ts.template",
       ),
       "utf-8",
     );
