@@ -28,7 +28,6 @@ export const addCommand = (resource: string, options: { force: boolean }) => {
       ),
       "utf-8",
     );
-    renderTemplate(modelTemplate, casingVariants, modelPath);
 
     const controllerPath = join(
       config.srcDir,
@@ -53,8 +52,6 @@ export const addCommand = (resource: string, options: { force: boolean }) => {
       "utf-8",
     );
 
-    renderTemplate(controllerTemplate, casingVariants, controllerPath);
-
     const repositoryPath = join(
       config.srcDir,
       "repositories",
@@ -76,7 +73,6 @@ export const addCommand = (resource: string, options: { force: boolean }) => {
       ),
       "utf-8",
     );
-    renderTemplate(repositoryTemplate, casingVariants, repositoryPath);
 
     const routerPath = join(
       config.srcDir,
@@ -101,6 +97,9 @@ export const addCommand = (resource: string, options: { force: boolean }) => {
       "utf-8",
     );
 
+    renderTemplate(modelTemplate, casingVariants, modelPath);
+    renderTemplate(controllerTemplate, casingVariants, controllerPath);
+    renderTemplate(repositoryTemplate, casingVariants, repositoryPath);
     renderTemplate(routerTemplate, casingVariants, routerPath);
   } catch (error) {
     throw new Error(`Failed to generate resource: ${(error as Error).message}`);
