@@ -282,6 +282,104 @@ export const initCommand = async (
       join(cwd(), projectName, "src", "middlewares", "errorMiddleware.ts"),
       errorMiddlewareFile,
     );
+
+    if (options.auth) {
+      const typesFile = readFileSync(
+        join(
+          __dirname,
+          "..",
+          "templates",
+          "express",
+          "auth",
+          "types.ts.template",
+        ),
+      );
+
+      writeFileSync(join(cwd(), projectName, "src", "types.ts"), typesFile);
+
+      const userModelFile = readFileSync(
+        join(
+          __dirname,
+          "..",
+          "templates",
+          "express",
+          "auth",
+          "userModel.ts.template",
+        ),
+      );
+
+      writeFileSync(
+        join(cwd(), projectName, "src", "models", "userModel.ts"),
+        userModelFile,
+      );
+
+      const authMiddlewareFile = readFileSync(
+        join(
+          __dirname,
+          "..",
+          "templates",
+          "express",
+          "auth",
+          "authMiddleware.ts.template",
+        ),
+      );
+
+      writeFileSync(
+        join(cwd(), projectName, "src", "middlewares", "authMiddleware.ts"),
+        authMiddlewareFile,
+      );
+
+      const authControllerFile = readFileSync(
+        join(
+          __dirname,
+          "..",
+          "templates",
+          "express",
+          "auth",
+          "authController.ts.template",
+        ),
+      );
+
+      writeFileSync(
+        join(cwd(), projectName, "src", "controllers", "authController.ts"),
+        authControllerFile,
+      );
+
+      const authRouterFile = readFileSync(
+        join(
+          __dirname,
+          "..",
+          "templates",
+          "express",
+          "auth",
+          "authRouter.ts.template",
+        ),
+      );
+
+      writeFileSync(
+        join(cwd(), projectName, "src", "routes", "authRouter.ts"),
+        authRouterFile,
+      );
+
+      const apiRouterPath = join(cwd(), projectName, "src", "apiRouter.ts");
+      const apiRouterContent = readFileSync(apiRouterPath, "utf-8");
+
+      const importLine = `import authRouter from './routes/authRouter'`;
+
+      if (!apiRouterContent.includes(importLine)) {
+        const lines = apiRouterContent.split("\n");
+
+        const exportIndex = lines.findIndex((line) =>
+          line.includes("export default apiRouter"),
+        );
+
+        lines.splice(exportIndex, 0, `apiRouter.use('/auth', authRouter)`);
+
+        lines.splice(0, 0, importLine);
+
+        writeFileSync(apiRouterPath, lines.join("\n"));
+      }
+    }
   } catch (error) {
     throw new Error(`Failed to scaffold project: ${(error as Error).message}`);
   }

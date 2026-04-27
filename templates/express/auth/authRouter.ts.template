@@ -1,0 +1,12 @@
+import express from "express";
+import diContainer from "../di/inversify.config";
+import AuthController from "../controllers/authController";
+import TYPES from "../di/types";
+
+const authRouter = express.Router();
+const authController = diContainer.get<AuthController>(TYPES.AuthController);
+
+authRouter.post("/register", authController.register);
+authRouter.post("/login", authController.login);
+
+export = authRouter;

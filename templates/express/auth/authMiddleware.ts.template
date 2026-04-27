@@ -1,0 +1,44 @@
+import { inject, injectable } from "inversify";
+import UserRepository from "../db/repositories/userRepository";
+import TYPES from "../di/TYPES";
+import { UserRequest } from "../types";
+import { NextFunction, Response } from "express";
+import { UnauthorizedError } from "../utils/errors";
+import jwt from "jsonwebtoken";
+import { config } from "../config";
+
+@injectable()
+class AuthMiddleware {
+  private _userRepository: UserRepository;
+
+  constructor(@inject(TYPES.UserRepository) userRepository: UserRepository) {
+    this._userRepository = userRepository;
+  }
+
+  requireAuthentication = (req: UserRequest, res: Response, next: NextFunction) => {
+    const authHeader = req.headers.authorization;
+  
+    if (!authHeader) return next(new UnauthorizedError("Token doesn't exist"));
+    
+    const token = authHeader.split(' ')[1];
+    if (!token) return next(new UnauthorizedError("Token doesn't exist"));
+
+    jwt.verify(token, config.JWT_SECRET, async (error: any, decodedToken: any) => {
+      if (error) return next(new UnauthorizedError("Invalid token"));
+
+      const { id } = decodedToken;
+
+      try {
+        const user = await this._userRepository.getUserById(id);
+        if (!user) return next(new UnauthorizedError("Unauthorized"));
+        req.user = user;
+
+        return next();
+      } catch (error) {
+        return next(error);
+      }
+    });
+  };
+}
+
+export = AuthMiddleware;

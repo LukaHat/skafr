@@ -1,0 +1,11 @@
+type UserAttributes = {
+  id: string
+  email: string,
+  passwordHash: string
+}
+
+type CreateUserAttributes = Omit<UserAttributes, "id">
+
+type UpdateUserAttributes = Partial<CreateUserAttributes>
+
+export { UserAttributes, CreateUserAttributes, UpdateUserAttributes }

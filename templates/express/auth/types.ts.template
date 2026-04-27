@@ -1,0 +1,8 @@
+import { User } from "./models/userModel";
+import { Request } from "express"
+
+interface UserRequest extends Request {
+  user?: User;
+}
+
+export { UserRequest };
