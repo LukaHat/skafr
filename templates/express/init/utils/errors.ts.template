@@ -1,0 +1,71 @@
+import AppConstants from "../constants/appConstants";
+
+class BaseError extends Error {
+  constructor(
+    readonly statusCode: number,
+    readonly type: string,
+    readonly message: string
+  ) {
+    super();
+  }
+}
+
+class CustomError extends BaseError {
+  constructor(statusCode: number, type: string, message: string) {
+    super(statusCode, type, message);
+  }
+}
+
+class BadRequestError extends BaseError {
+  constructor(message: string) {
+    super(AppConstants.HttpStatusCodes.BAD_REQUEST, AppConstants.ErrorTypes.BAD_REQUEST, message);
+  }
+}
+
+class NotFoundError extends BaseError {
+    constructor(message: string) {
+        super(AppConstants.HttpStatusCodes.NOT_FOUND, AppConstants.ErrorTypes.NOT_FOUND, message);
+    }
+}
+
+class InternalServerError extends BaseError {
+  constructor(message: string) {
+    super(AppConstants.HttpStatusCodes.INTERNAL_SERVER, AppConstants.ErrorTypes.INTERNAL_SERVER, message);
+  }
+}
+
+class DuplicatedValueError extends BaseError {
+  constructor(message: string) {
+    super(AppConstants.HttpStatusCodes.DUPLICATED_VALUE, AppConstants.ErrorTypes.DUPLICATED_VALUE, message);
+  }
+}
+
+class ValidationError extends BaseError {
+  constructor(message: string) {
+    super(AppConstants.HttpStatusCodes.BAD_REQUEST, AppConstants.ErrorTypes.VALIDATION, message);
+  }
+}
+
+class ForbiddenError extends BaseError {
+  constructor(message: string) {
+    super(AppConstants.HttpStatusCodes.FORBIDDEN, AppConstants.ErrorTypes.FORBIDDEN, message);
+  }
+}
+
+class UnauthorizedError extends BaseError {
+  constructor(message: string) {
+    super(AppConstants.HttpStatusCodes.UNAUTHORIZED, AppConstants.ErrorTypes.UNAUTHORIZED, message);
+  }
+}
+
+export {
+  BaseError,
+  CustomError,
+  BadRequestError,
+  InternalServerError,
+  DuplicatedValueError,
+  ValidationError,
+  ForbiddenError,
+  UnauthorizedError,
+  NotFoundError
+};

@@ -1,0 +1,21 @@
+import { NextFunction, Request, Response } from "express";
+import { BaseError } from "../utils/errors";
+import AppConstants from "../constants/appConstants";
+
+function handleErrors(err: BaseError, req: Request, res: Response, next: NextFunction) {
+  if (typeof err.message === "object")
+    return res
+      .status(err.statusCode || AppConstants.HttpStatusCodes.INTERNAL_SERVER)
+      .json({ errorMessages: err.message, errorType: err.type, status: err.statusCode });
+
+  if (!err.type)
+    return res
+      .status(AppConstants.HttpStatusCodes.INTERNAL_SERVER)
+      .json({ errorMessage: err.message, errorType: err.name, status: AppConstants.HttpStatusCodes.INTERNAL_SERVER });
+
+  return res
+    .status(err.statusCode || AppConstants.HttpStatusCodes.INTERNAL_SERVER)
+    .json({ errorMessage: err.message, errorType: err.type, status: err.statusCode });
+}
+
+export = handleErrors;

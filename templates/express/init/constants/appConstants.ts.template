@@ -1,0 +1,30 @@
+const HttpStatusCodes = {
+  OK: 200,
+  CREATED: 201,
+  NO_CONTENT_SUCCESS: 204,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  DUPLICATED_VALUE: 409,
+  INTERNAL_SERVER: 500,
+  TOO_MANY_REQUESTS: 429,
+  NOT_FOUND: 404
+};
+
+const ErrorTypes = {
+  BAD_REQUEST: "Bad Request",
+  DUPLICATED_VALUE: "Duplicated value",
+  VALIDATION: "Validation",
+  INTERNAL_SERVER: "Internal Server Error",
+  UNAUTHORIZED: "Unauthorized",
+  FORBIDDEN: "Forbidden",
+  TOO_MANY_REQUESTS: "Too Many Requests",
+  NOT_FOUND: "Not found"
+};
+
+const AppConstants = {
+    HttpStatusCodes,
+    ErrorTypes
+}
+
+export default AppConstants;

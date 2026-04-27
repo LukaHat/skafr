@@ -36,10 +36,11 @@ export const initCommand = async (
       "src/controllers",
       "src/routes",
       "src/models",
-      "src/middleware",
+      "src/middlewares",
       "src/repositories",
       "src/utils",
       "src/di",
+      "src/constants",
     ];
 
     mkdirSync(join(cwd(), projectName));
@@ -195,6 +196,91 @@ export const initCommand = async (
     writeFileSync(
       join(cwd(), projectName, "src", "di", "inversify.config.ts"),
       diContainerFile,
+    );
+
+    const appConstantsFile = readFileSync(
+      join(
+        __dirname,
+        "..",
+        "templates",
+        "express",
+        "init",
+        "constants",
+        "appConstants.ts.template",
+      ),
+    );
+
+    writeFileSync(
+      join(cwd(), projectName, "src", "constants", "appConstants.ts"),
+      appConstantsFile,
+    );
+
+    const errorsFile = readFileSync(
+      join(
+        __dirname,
+        "..",
+        "templates",
+        "express",
+        "init",
+        "utils",
+        "errors.ts.template",
+      ),
+    );
+
+    writeFileSync(
+      join(cwd(), projectName, "src", "utils", "errors.ts"),
+      errorsFile,
+    );
+
+    const helpersFile = readFileSync(
+      join(
+        __dirname,
+        "..",
+        "templates",
+        "express",
+        "init",
+        "utils",
+        "helpers.ts.template",
+      ),
+    );
+
+    writeFileSync(
+      join(cwd(), projectName, "src", "utils", "helpers.ts"),
+      helpersFile,
+    );
+
+    const successResponsesFile = readFileSync(
+      join(
+        __dirname,
+        "..",
+        "templates",
+        "express",
+        "init",
+        "utils",
+        "successResponses.ts.template",
+      ),
+    );
+
+    writeFileSync(
+      join(cwd(), projectName, "src", "utils", "successResponses.ts"),
+      successResponsesFile,
+    );
+
+    const errorMiddlewareFile = readFileSync(
+      join(
+        __dirname,
+        "..",
+        "templates",
+        "express",
+        "init",
+        "middlewares",
+        "errorMiddleware.ts.template",
+      ),
+    );
+
+    writeFileSync(
+      join(cwd(), projectName, "src", "middlewares", "errorMiddleware.ts"),
+      errorMiddlewareFile,
     );
   } catch (error) {
     throw new Error(`Failed to scaffold project: ${(error as Error).message}`);

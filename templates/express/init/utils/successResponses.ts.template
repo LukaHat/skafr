@@ -1,0 +1,22 @@
+import { Response } from "express";
+import AppConstants from "../constants/appConstants";
+
+type SuccessData = string | object | object[];
+
+export class SuccessResponses {
+  static okResponse(res: Response, data: SuccessData) {
+    if (typeof data == "string") return res.status(AppConstants.HttpStatusCodes.OK).json({ message: data });
+
+    return res.status(AppConstants.HttpStatusCodes.OK).json(data);
+  }
+
+  static creationSuccess(res: Response, data: SuccessData) {
+    if (typeof data == "string") return res.status(AppConstants.HttpStatusCodes.CREATED).json({ message: data });
+
+    return res.status(AppConstants.HttpStatusCodes.CREATED).json(data);
+  }
+
+  static noContentSuccess(res: Response) {
+    return res.status(AppConstants.HttpStatusCodes.NO_CONTENT_SUCCESS).send();
+  }
+}
