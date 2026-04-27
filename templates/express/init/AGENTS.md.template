@@ -5,6 +5,7 @@ src/
 ├── middleware/      # Express middleware
 ├── repositories/    # All database access — never query DB outside here
 ├── apiRouter.ts     # Mounts all resource routers under /api
+├── di/              # Contains all dependency injection files
 ├── utils/       
 └── config.ts        # Environment variables — never use process.env directly
 

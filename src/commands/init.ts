@@ -39,6 +39,7 @@ export const initCommand = async (
       "src/middleware",
       "src/repositories",
       "src/utils",
+      "src/di",
     ];
 
     mkdirSync(join(cwd(), projectName));
@@ -161,6 +162,40 @@ export const initCommand = async (
     writeFileSync(join(cwd(), projectName, "AGENTS.md"), mainAgentsFile);
 
     symlinkSync("./AGENTS.md", join(cwd(), projectName, "CLAUDE.md"), "file");
+
+    const diTypesFile = readFileSync(
+      join(
+        __dirname,
+        "..",
+        "templates",
+        "express",
+        "init",
+        "di",
+        "types.ts.template",
+      ),
+    );
+
+    writeFileSync(
+      join(cwd(), projectName, "src", "di", "TYPES.ts"),
+      diTypesFile,
+    );
+
+    const diContainerFile = readFileSync(
+      join(
+        __dirname,
+        "..",
+        "templates",
+        "express",
+        "init",
+        "di",
+        "inversify.config.ts.template",
+      ),
+    );
+
+    writeFileSync(
+      join(cwd(), projectName, "src", "di", "inversify.config.ts"),
+      diContainerFile,
+    );
   } catch (error) {
     throw new Error(`Failed to scaffold project: ${(error as Error).message}`);
   }
