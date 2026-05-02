@@ -26,14 +26,16 @@ export const loadConfig = (): SkafrConfig => {
     );
   }
 
-  if (!isSkafConfig(parsedConfig))
+  if (!isSkafrConfig(parsedConfig))
     throw new Error(
       'Invalid .skafrc: missing or invalid required fields "stack" and "srcDir". srcDir should be a path to your source directory and stack should be one of the supported stacks. Please check https://github.com/LukaHat/skafr',
     );
   return parsedConfig as SkafrConfig;
 };
 
-const isSkafConfig = (objectToCheck: unknown): objectToCheck is SkafrConfig => {
+const isSkafrConfig = (
+  objectToCheck: unknown,
+): objectToCheck is SkafrConfig => {
   const nonNullObject =
     typeof objectToCheck === "object" && objectToCheck !== null;
   if (nonNullObject) {
