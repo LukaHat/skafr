@@ -17,11 +17,12 @@ class AuthMiddleware {
 
   requireAuthentication = (req: UserRequest, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
-  
-    if (!authHeader) return next(new UnauthorizedError("Token doesn't exist"));
-    
-    const token = authHeader.split(' ')[1];
-    if (!token) return next(new UnauthorizedError("Token doesn't exist"));
+
+  if (!authHeader) return next(new UnauthorizedError("Token doesn't exist"));
+
+    const [scheme, token] = authHeader.split(' ');
+
+    if (scheme !== 'Bearer' || !token) return next(new UnauthorizedError("Token doesn't exist"));
 
     jwt.verify(token, config.JWT_SECRET, async (error: any, decodedToken: any) => {
       if (error) return next(new UnauthorizedError("Invalid token"));
