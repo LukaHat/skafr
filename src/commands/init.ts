@@ -215,6 +215,23 @@ export const initCommand = async (
       appConstantsFile,
     );
 
+    const appStringsFile = readFileSync(
+      join(
+        __dirname,
+        "..",
+        "templates",
+        "express",
+        "init",
+        "constants",
+        "appStrings.ts.template",
+      ),
+    );
+
+    writeFileSync(
+      join(cwd(), projectName, "src", "constants", "appStrings.ts"),
+      appStringsFile,
+    );
+
     const errorsFile = readFileSync(
       join(
         __dirname,
