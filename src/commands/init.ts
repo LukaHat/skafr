@@ -96,29 +96,23 @@ export const initCommand = async (
     );
     writeFileSync(join(cwd(), projectName, "src", "apiRouter.ts"), apiRouter);
 
+    const configTemplate = options.auth
+      ? "config.ts.template"
+      : "config.no-auth.ts.template";
+
     const config = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "config.ts.template",
-      ),
+      join(__dirname, "..", "templates", "express", "init", configTemplate),
       "utf-8",
     );
 
     writeFileSync(join(cwd(), projectName, "src", "config.ts"), config);
 
+    const envTemplate = options.auth
+      ? ".env.example.template"
+      : ".env.no-auth.example.template";
+
     const envExample = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        ".env.example.template",
-      ),
+      join(__dirname, "..", "templates", "express", "init", envTemplate),
       "utf-8",
     );
 
