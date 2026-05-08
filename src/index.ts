@@ -5,6 +5,7 @@ import { version } from "../package.json";
 import { initCommand } from "./commands/init";
 import { SupportedDBs, SupportedOrms, SupportedStacks } from "./types";
 import { addCommand } from "./commands/add";
+import { uninstallCommand } from "./commands/uninstall";
 
 program
   .name("skafr")
@@ -66,6 +67,11 @@ program
   .action(() => {
     console.log("not implemented yet");
   });
+
+program
+  .command("uninstall")
+  .description("Remove .skafrc and log CLI removal instructions")
+  .action(uninstallCommand);
 
 program.parse();
 
