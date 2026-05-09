@@ -3,12 +3,56 @@ import { ResourceContext } from "./types";
 import fs from "fs";
 import path from "path";
 
+const reservedKeywords = new Set([
+  "class",
+  "import",
+  "export",
+  "return",
+  "function",
+  "const",
+  "let",
+  "var",
+  "if",
+  "else",
+  "for",
+  "while",
+  "do",
+  "switch",
+  "case",
+  "break",
+  "continue",
+  "new",
+  "delete",
+  "typeof",
+  "void",
+  "in",
+  "instanceof",
+  "throw",
+  "try",
+  "catch",
+  "finally",
+  "default",
+  "extends",
+  "super",
+  "this",
+  "yield",
+  "async",
+  "await",
+  "static",
+  "type",
+  "interface",
+  "enum",
+  "namespace",
+]);
+
 const toPascalCase = (resourceName: string) =>
   resourceName
-    .toLowerCase()
-    .split(/[\s_-]/)
+    .split(/(?=[A-Z])|[\s_-]/)
     .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => {
+      const lowercasedWord = word.toLowerCase();
+      return lowercasedWord.charAt(0).toUpperCase() + lowercasedWord.slice(1);
+    })
     .join("");
 
 const toCamelCase = (resourceName: string) => {
@@ -22,6 +66,16 @@ export const buildResourceContext = (resourceName: string) => {
   const sanitized = normalized.replace(/[^a-zA-Z0-9\s_-]/g, "").trim();
   if (!sanitized)
     throw new Error("resourceName must contain alphanumeric characters");
+
+  const isFirstCharDigit = /^[0-9]/.test(sanitized);
+  if (isFirstCharDigit)
+    throw new Error(
+      "Resource name must start with a letter as a first character",
+    );
+
+  const reservedKeywordUsed = reservedKeywords.has(sanitized.toLowerCase());
+  if (reservedKeywordUsed)
+    throw new Error("Resource cannot use reserved JS keywords");
 
   return {
     resourceClass: toPascalCase(sanitized),
