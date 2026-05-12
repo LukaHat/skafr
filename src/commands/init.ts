@@ -1,4 +1,4 @@
-import { InitOptions } from "../types";
+import { InitOptions, SupportedOrms } from "../types";
 import {
   mkdirSync,
   existsSync,
@@ -106,6 +106,14 @@ export const initCommand = async (
     );
 
     writeFileSync(join(cwd(), projectName, "src", "config.ts"), config);
+
+    if (options.orm === SupportedOrms.sequelize) {
+      const dbFile = readFileSync(
+        join(__dirname, "..", "templates", "express", "init", "db.ts.template"),
+        "utf-8",
+      );
+      writeFileSync(join(cwd(), projectName, "src", "db.ts"), dbFile);
+    }
 
     const envTemplate = options.auth
       ? ".env.example.template"
