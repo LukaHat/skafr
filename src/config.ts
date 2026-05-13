@@ -6,7 +6,7 @@ export const assertSkafrProject = () => {
   const skafrcExists = fs.existsSync(path.join(process.cwd(), ".skafrc"));
   if (!skafrcExists) {
     console.error(
-      "Not a skafr project (.skafrc not found). Run `skaf init` first.",
+      "Not a skafr project (.skafrc not found). Run `skafr init` first.",
     );
     process.exit(1);
   }
