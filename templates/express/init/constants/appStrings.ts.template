@@ -8,6 +8,4 @@ const ErrorStrings = {
   INVALID_CREDENTIALS: "Invalid credentials",
 };
 
-const AppStrings = { ErrorStrings };
-
-export default AppStrings;
+export { ErrorStrings };

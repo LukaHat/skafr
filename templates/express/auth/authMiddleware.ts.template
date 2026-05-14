@@ -6,6 +6,7 @@ import { NextFunction, Response } from "express";
 import { UnauthorizedError } from "../utils/errors";
 import jwt from "jsonwebtoken";
 import { config } from "../config";
+import { ErrorStrings } from "../constants/appStrings"
 
 @injectable()
 class AuthMiddleware {
@@ -18,20 +19,20 @@ class AuthMiddleware {
   requireAuthentication = (req: UserRequest, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
 
-  if (!authHeader) return next(new UnauthorizedError("Token doesn't exist"));
+  if (!authHeader) return next(new UnauthorizedError(ErrorStrings.TOKEN_MISSING));
 
     const [scheme, token] = authHeader.split(' ');
 
-    if (scheme !== 'Bearer' || !token) return next(new UnauthorizedError("Token doesn't exist"));
+    if (scheme !== 'Bearer' || !token) return next(new UnauthorizedError(ErrorStrings.TOKEN_MISSING));
 
     jwt.verify(token, config.JWT_SECRET, async (error: any, decodedToken: any) => {
-      if (error) return next(new UnauthorizedError("Invalid token"));
+      if (error) return next(new UnauthorizedError(ErrorStrings.TOKEN_INVALID));
 
       const { id } = decodedToken;
 
       try {
         const user = await this._userRepository.getUserById(id);
-        if (!user) return next(new UnauthorizedError("Unauthorized"));
+        if (!user) return next(new UnauthorizedError(ErrorStrings.UNAUTHORIZED));
         req.user = user;
 
         return next();
