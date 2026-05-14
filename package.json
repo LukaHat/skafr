@@ -14,17 +14,18 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LukaHat/skafr.git"
+    "url": "https://github.com/LukaHat/skafr.git"
   },
   "homepage": "https://github.com/LukaHat/skafr#readme",
   "scripts": {
+    "test": "jest",
     "test:dev": "npm run build && node dist/index.js init test-project",
     "test:clean": "rm -rf test-project",
     "test:run": "npm run test:clean; npm run test:dev",
     "build": "rm -rf dist && tsc && cp -r templates dist/"
   },
   "bin": {
-    "skafr": "dist/index.js"
+    "skafr": "./dist/index.js"
   },
   "files": [
     "dist"
@@ -39,8 +40,11 @@
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.9",
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
     "@types/pluralize": "^0.0.33",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.9",
     "typescript": "^6.0.2"
   }
 }
