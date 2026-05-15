@@ -1,4 +1,4 @@
-import { InitOptions, SupportedOrms } from "../types";
+import { AiFilesMode, InitOptions, SupportedOrms } from "../types";
 import {
   mkdirSync,
   existsSync,
@@ -151,21 +151,53 @@ export const initCommand = async (
         `npm install failed: ${installResult.error?.message ?? `exit code ${installResult.status}`}`,
       );
 
-    const mainAgentsFile = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "AGENTS.md.template",
-      ),
-      "utf-8",
-    );
+    const aiFilesMode = options.aiFiles ?? AiFilesMode.all;
 
-    writeFileSync(join(cwd(), projectName, "AGENTS.md"), mainAgentsFile);
+    if (aiFilesMode === AiFilesMode.all || aiFilesMode === AiFilesMode.claude) {
+      const agentsTemplate = readFileSync(
+        join(
+          __dirname,
+          "..",
+          "templates",
+          "express",
+          "init",
+          "AGENTS.md.template",
+        ),
+        "utf-8",
+      );
 
-    symlinkSync("./AGENTS.md", join(cwd(), projectName, "CLAUDE.md"), "file");
+      writeFileSync(join(cwd(), projectName, "AGENTS.md"), agentsTemplate);
+      symlinkSync("./AGENTS.md", join(cwd(), projectName, "CLAUDE.md"), "file");
+    }
+
+    if (aiFilesMode === AiFilesMode.all) {
+      mkdirSync(join(cwd(), projectName, ".github"), { recursive: true });
+      symlinkSync(
+        "../AGENTS.md",
+        join(cwd(), projectName, ".github", "copilot-instructions.md"),
+        "file",
+      );
+    }
+
+    if (aiFilesMode === AiFilesMode.copilot) {
+      const copilotTemplate = readFileSync(
+        join(
+          __dirname,
+          "..",
+          "templates",
+          "express",
+          "init",
+          "copilot-instructions.md.template",
+        ),
+        "utf-8",
+      );
+
+      mkdirSync(join(cwd(), projectName, ".github"), { recursive: true });
+      writeFileSync(
+        join(cwd(), projectName, ".github", "copilot-instructions.md"),
+        copilotTemplate,
+      );
+    }
 
     const typesTemplate = options.auth
       ? "types.ts.template"

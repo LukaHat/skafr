@@ -22,9 +22,17 @@ export type ResourceContext = {
   resourceRoute: string;
 };
 
+export enum AiFilesMode {
+  all = "all",
+  claude = "claude",
+  copilot = "copilot",
+  none = "none",
+}
+
 export type InitOptions = {
   stack: SupportedStacks;
   auth: boolean;
   orm: SupportedOrms;
   db: SupportedDBs;
+  aiFiles: AiFilesMode;
 };
