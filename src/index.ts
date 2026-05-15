@@ -10,7 +10,7 @@ if (Number(process.version.split(".")[0].slice(1)) < 22) {
 import { Option, program } from "commander";
 import { version } from "../package.json";
 import { initCommand } from "./commands/init";
-import { SupportedDBs, SupportedOrms, SupportedStacks } from "./types";
+import { AiFilesMode, SupportedDBs, SupportedOrms, SupportedStacks } from "./types";
 import { addCommand } from "./commands/add";
 import { uninstallCommand } from "./commands/uninstall";
 import { assertSkafrProject } from "./config";
@@ -43,6 +43,11 @@ program
     "-a, --auth",
     "choose whether to have auth system already implemented",
     true,
+  )
+  .addOption(
+    new Option("--ai-files <mode>", "control which AI context files are generated")
+      .choices([...Object.values(AiFilesMode)])
+      .default(AiFilesMode.all),
   )
   .description("Initialize a new project with the given name")
   .action(async (projectName, options) => {
