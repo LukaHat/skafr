@@ -107,7 +107,7 @@ export const addCommand = (
     renderTemplate(repositoryTemplate, casingVariants, repositoryPath);
     renderTemplate(routerTemplate, casingVariants, routerPath);
 
-    const apiRouterPath = join(config.srcDir, "apiRouter.ts");
+    const apiRouterPath = join(config.srcDir, "routes", "apiRouter.ts");
     const apiRouterContent = readFileSync(apiRouterPath, "utf-8");
 
     const importLine = `import ${casingVariants.resourceVar}Router from './routes/${casingVariants.resourceFile}Router'`;

@@ -91,11 +91,12 @@ export const initCommand = async (
         "templates",
         "express",
         "init",
+        "routes",
         "apiRouter.ts.template",
       ),
       "utf-8",
     );
-    writeFileSync(join(cwd(), projectName, "src", "apiRouter.ts"), apiRouter);
+    writeFileSync(join(cwd(), projectName, "src", "routes", "apiRouter.ts"), apiRouter);
 
     const configTemplate = options.auth
       ? "config.ts.template"
@@ -440,7 +441,7 @@ export const initCommand = async (
         authRouterFile,
       );
 
-      const apiRouterPath = join(cwd(), projectName, "src", "apiRouter.ts");
+      const apiRouterPath = join(cwd(), projectName, "src", "routes", "apiRouter.ts");
       const apiRouterContent = readFileSync(apiRouterPath, "utf-8");
 
       const importLine = `import authRouter from './routes/authRouter'`;
