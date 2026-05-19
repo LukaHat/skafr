@@ -9,7 +9,7 @@ export const uninstallCommand = () => {
     try {
       rmSync(skafrcPath);
       console.log("Removed .skafrc");
-    } catch (error) {
+    } catch {
       console.log("Something went wrong when deleting .skafrc");
     }
   } else {
