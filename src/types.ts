@@ -35,4 +35,5 @@ export type InitOptions = {
   orm: SupportedOrms;
   db: SupportedDBs;
   aiFiles: AiFilesMode;
+  force: boolean;
 };

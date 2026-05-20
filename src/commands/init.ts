@@ -24,11 +24,15 @@ export const initCommand = async (
       );
 
     const dirExists = existsSync(join(cwd(), projectName));
+    if (dirExists && !options.force) {
+      const skafrConfigExists = existsSync(join(cwd(), projectName, ".skafrc"));
+      const message = skafrConfigExists
+        ? `skafr project already exists in '${projectName}'. Reinitialise? This will overwrite base files. (y/N)`
+        : `Directory '${projectName}' already exists. Overwrite it?`;
+      const overwrite = await confirm({ message, default: false });
+      if (!overwrite) return;
+    }
     if (dirExists) {
-      const overwriteDir = await confirm({
-        message: `Looks like a directory named ${projectName} already exists. Do you want to overwrite it?`,
-      });
-      if (!overwriteDir) return;
       rmSync(join(cwd(), projectName), { recursive: true, force: true });
     }
 
