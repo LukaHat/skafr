@@ -129,6 +129,6 @@ export const addCommand = (
       writeFileSync(apiRouterPath, lines.join("\n"));
     }
   } catch (error) {
-    throw new Error(`Failed to generate resource: ${(error as Error).message}`);
+    throw new Error(`Failed to generate resource: ${(error as Error).message}`, { cause: error });
   }
 };

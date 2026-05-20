@@ -20,19 +20,22 @@ export const loadConfig = (): SkafrConfig => {
     const rawConfig = fs.readFileSync(configPath, "utf-8");
     parsedConfig = JSON.parse(rawConfig);
   } catch (error) {
-    if (error instanceof Error && (error as any).code === "ENOENT") {
+    if (error instanceof Error && (error as Error & { code?: string }).code === "ENOENT") {
       throw new Error(
         `.skafrc file not found. Please either add .skafrc config file or reference https://github.com/LukaHat/skafr for further instructions`,
+        { cause: error },
       );
     }
 
     if (error instanceof SyntaxError) {
       throw new Error(
         "Invalid JSON. Please check your .skafrc file or reference https://github.com/LukaHat/skafr for further instructions",
+        { cause: error },
       );
     }
     throw new Error(
       `Could not load .skafrc config: ${(error as Error).message}`,
+      { cause: error },
     );
   }
 

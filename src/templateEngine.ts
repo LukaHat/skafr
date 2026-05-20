@@ -138,6 +138,7 @@ export const renderTemplate = (
   } catch (error) {
     throw new Error(
       `Error while rendering template: ${(error as Error).message}`,
+      { cause: error },
     );
   }
 };

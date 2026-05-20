@@ -461,6 +461,6 @@ export const initCommand = async (
       }
     }
   } catch (error) {
-    throw new Error(`Failed to scaffold project: ${(error as Error).message}`);
+    throw new Error(`Failed to scaffold project: ${(error as Error).message}`, { cause: error });
   }
 };
