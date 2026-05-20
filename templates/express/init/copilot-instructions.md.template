@@ -1,12 +1,14 @@
 src/
 ├── controllers/     # HTTP handlers only — no business logic
 ├── routes/          # Router definitions — wire controllers to endpoints
+│   └── apiRouter.ts # Mounts all resource routers under /api
 ├── models/          # TypeScript types and interfaces
-├── middleware/      # Express middleware
+├── middlewares/     # Express middleware
 ├── repositories/    # All database access — never query DB outside here
-├── apiRouter.ts     # Mounts all resource routers under /api
-├── di/              # Contains all dependency injection files
-├── utils/
+├── di/              # Dependency injection config and bindings
+├── utils/           # Helpers, errors, success responses
+├── constants/       # App constants and strings
+├── db/              # Database connection and base repositories
 └── config.ts        # Environment variables — never use process.env directly
 
 ## Naming Conventions
