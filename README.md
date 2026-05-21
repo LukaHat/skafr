@@ -105,6 +105,7 @@ Generates a typed resource slice â€” model, controller, repository, and router â
 skafr add user
 skafr add post --crud
 skafr add comment --force
+skafr add migration create-users-table
 ```
 
 **Flags:**

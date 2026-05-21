@@ -51,7 +51,7 @@ program
   });
 
 program
-  .command("add <resource>")
+  .command("add <resource> [migrationName]")
   .option("-f, --force", "overwrite existing files", false)
   .option("--skip-existing", "skip files that already exist without prompting", false)
   .option("--no-tests", "skip test file generation")
@@ -62,8 +62,8 @@ program
     false
   )
   .description("Implement scaffolding for given resource")
-  .action(async (resource, options) => {
-    await addCommand(resource, options);
+  .action(async (resource, migrationName, options) => {
+    await addCommand(resource, migrationName, options);
   });
 
 program
