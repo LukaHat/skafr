@@ -141,6 +141,23 @@ apiRouter.use("/users", userRouter);
 
 ---
 
+### `skafr remove <resource>`
+
+Removes a generated resource slice and de-registers it from `apiRouter.ts`, `di/TYPES.ts`, and `di/inversify.config.ts`.
+
+```bash
+skafr remove user
+skafr remove post --force
+```
+
+**Flags:**
+
+| Flag          | Default | Description                    |
+| ------------- | ------- | ------------------------------ |
+| `-f, --force` | off     | Skip confirmation prompt       |
+
+---
+
 ## Configuration
 
 skafr reads `.skafrc` in your project root. It is generated automatically by `skafr init`.

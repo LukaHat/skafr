@@ -10,6 +10,7 @@ import { version } from "../package.json";
 import { initCommand } from "./commands/init";
 import { AiFilesMode, SupportedDBs, SupportedOrms, SupportedStacks } from "./types";
 import { addCommand } from "./commands/add";
+import { removeCommand } from "./commands/remove";
 import { listCommand } from "./commands/list";
 import { configCommand } from "./commands/config";
 import { uninstallCommand } from "./commands/uninstall";
@@ -64,6 +65,14 @@ program
   .description("Implement scaffolding for given resource")
   .action(async (resource, migrationName, options) => {
     await addCommand(resource, migrationName, options);
+  });
+
+program
+  .command("remove <resource>")
+  .option("-f, --force", "skip confirmation prompt", false)
+  .description("Remove generated resource slice and de-register routes")
+  .action(async (resource, options) => {
+    await removeCommand(resource, options);
   });
 
 program
