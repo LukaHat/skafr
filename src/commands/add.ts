@@ -183,6 +183,44 @@ export const addCommand = async (
 
       writeFileSync(apiRouterPath, lines.join("\n"));
     }
+
+    const typesPath = join(config.srcDir, "di", "TYPES.ts");
+    if (existsSync(typesPath)) {
+      const typesContent = readFileSync(typesPath, "utf-8");
+      const controllerSymbol = `  ${casingVariants.resourceClass}Controller: Symbol.for("${casingVariants.resourceClass}Controller"),`;
+      const repositorySymbol = `  ${casingVariants.resourceClass}Repository: Symbol.for("${casingVariants.resourceClass}Repository"),`;
+
+      if (!typesContent.includes(`${casingVariants.resourceClass}Controller`)) {
+        const lines = typesContent.split("\n");
+        const closingIndex = lines.reduce<number>((last, l, i) => (l.trim() === "};" ? i : last), -1);
+        lines.splice(closingIndex, 0, controllerSymbol, repositorySymbol);
+        writeFileSync(typesPath, lines.join("\n"));
+      }
+    }
+
+    const containerPath = join(config.srcDir, "di", "inversify.config.ts");
+    if (existsSync(containerPath)) {
+      const containerContent = readFileSync(containerPath, "utf-8");
+      const controllerImport = `import { ${casingVariants.resourceClass}Controller } from "../controllers/${casingVariants.resourceFile}Controller"`;
+      const repositoryImport = `import { ${casingVariants.resourceClass}Repository } from "../repositories/${casingVariants.resourceFile}Repository"`;
+      const controllerBind = `container.bind<${casingVariants.resourceClass}Controller>(TYPES.${casingVariants.resourceClass}Controller).to(${casingVariants.resourceClass}Controller)`;
+      const repositoryBind = `container.bind<${casingVariants.resourceClass}Repository>(TYPES.${casingVariants.resourceClass}Repository).to(${casingVariants.resourceClass}Repository)`;
+
+      if (!containerContent.includes(controllerImport)) {
+        const lines = containerContent.split("\n");
+
+        const lastImportIndex = lines.reduce<number>(
+          (last, line, i) => (line.startsWith("import ") ? i : last),
+          -1,
+        );
+        lines.splice(lastImportIndex + 1, 0, controllerImport, repositoryImport);
+
+        const exportIndex = lines.findIndex((l) => l.includes("export default container"));
+        lines.splice(exportIndex, 0, controllerBind, repositoryBind, "");
+
+        writeFileSync(containerPath, lines.join("\n"));
+      }
+    }
   } catch (error) {
     throw new Error(`Failed to generate resource: ${(error as Error).message}`, { cause: error });
   }
