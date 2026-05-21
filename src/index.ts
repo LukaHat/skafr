@@ -11,8 +11,8 @@ import { initCommand } from "./commands/init";
 import { AiFilesMode, SupportedDBs, SupportedOrms, SupportedStacks } from "./types";
 import { addCommand } from "./commands/add";
 import { listCommand } from "./commands/list";
+import { configCommand } from "./commands/config";
 import { uninstallCommand } from "./commands/uninstall";
-import { assertSkafrProject } from "./config";
 
 program
   .name("skafr")
@@ -76,8 +76,8 @@ program
 program
   .command("config")
   .description("Interactive setup for .skafrc configuration file")
-  .action(() => {
-    assertSkafrProject();
+  .action(async () => {
+    await configCommand();
   });
 
 program
