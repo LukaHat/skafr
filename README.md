@@ -113,6 +113,7 @@ skafr add comment --force
 | `--crud`           | off | Pre-fill CRUD method stubs with typed implementations   |
 | `--force`          | off | Overwrite existing files without prompting              |
 | `--skip-existing`  | off | Skip files that already exist without prompting         |
+| `--no-tests`       | off | Skip test file generation                               |
 
 **Generated files:**
 
@@ -122,7 +123,10 @@ src/
 ├── controllers/userController.ts
 ├── repositories/userRepository.ts
 ├── routes/userRouter.ts
-└── validators/userValidator.ts
+├── validators/userValidator.ts
+└── __tests__/
+    ├── userController.test.ts
+    └── userRepository.test.ts
 ```
 
 `apiRouter.ts` is automatically updated:

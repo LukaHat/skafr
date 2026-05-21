@@ -52,6 +52,7 @@ export const initCommand = async (
       "src/constants",
       "src/db/repositories",
       "src/validators",
+      "src/__tests__",
     ];
 
     mkdirSync(join(cwd(), projectName));

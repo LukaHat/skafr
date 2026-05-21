@@ -52,6 +52,7 @@ program
   .command("add <resource>")
   .option("-f, --force", "overwrite existing files", false)
   .option("--skip-existing", "skip files that already exist without prompting", false)
+  .option("--no-tests", "skip test file generation")
   .option(
     "--crud",
     "generate controllers and repositories with existing crud implementations",
