@@ -10,6 +10,7 @@ import { version } from "../package.json";
 import { initCommand } from "./commands/init";
 import { AiFilesMode, SupportedDBs, SupportedOrms, SupportedStacks } from "./types";
 import { addCommand } from "./commands/add";
+import { listCommand } from "./commands/list";
 import { uninstallCommand } from "./commands/uninstall";
 import { assertSkafrProject } from "./config";
 
@@ -67,7 +68,7 @@ program
   .command("list")
   .description("List all generated resources and their file paths")
   .action(() => {
-    assertSkafrProject();
+    listCommand();
   });
 
 program
