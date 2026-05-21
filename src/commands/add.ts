@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { assertSkafrProject, loadConfig } from "../config";
 import { buildResourceContext, renderTemplate } from "../templateEngine";
+import { SupportedOrms } from "../types";
 import { join } from "path";
 import { select } from "@inquirer/prompts";
 
@@ -82,15 +83,14 @@ export const addCommand = async (
       ),
       "utf-8",
     );
+    const repositoryTemplateName = options.crud
+      ? config.orm === SupportedOrms.sequelize
+        ? "repository.crud.sequelize.ts.template"
+        : "repository.crud.ts.template"
+      : "repository.ts.template";
+
     const repositoryTemplate = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "resources",
-        options.crud ? "repository.crud.ts.template" : "repository.ts.template",
-      ),
+      join(__dirname, "..", "templates", "express", "resources", repositoryTemplateName),
       "utf-8",
     );
     const routerTemplate = readFileSync(

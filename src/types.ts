@@ -13,6 +13,7 @@ export enum SupportedDBs {
 export type SkafrConfig = {
   stack: SupportedStacks;
   srcDir: string;
+  orm?: SupportedOrms;
 };
 
 export type ResourceContext = {
