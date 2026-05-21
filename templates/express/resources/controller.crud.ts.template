@@ -9,11 +9,11 @@ export class {{resourceClass}}Controller {
 
     constructor(@inject(TYPES.{{resourceClass}}Repository) {{resourceVar}}Repository: {{resourceClass}}Repository){
         this._{{resourceVar}}Repository = {{resourceVar}}Repository
-    } 
+    }
 
-    getAll = async(req: Request, res: Response, next: NextFunction) => {
+    getAll{{resourceClass}}s = async(req: Request, res: Response, next: NextFunction) => {
         try{
-            const result = await this._{{resourceVar}}Repository.getAll()
+            const result = await this._{{resourceVar}}Repository.getAll{{resourceClass}}s()
 
             res.json(result)
         } catch(error){
@@ -21,34 +21,34 @@ export class {{resourceClass}}Controller {
         }
     }
 
-    getById = async(req: Request, res: Response, next: NextFunction) => {
+    get{{resourceClass}}ById = async(req: Request, res: Response, next: NextFunction) => {
         try{
             const id = req.params.id as string
-            const result = await this._{{resourceVar}}Repository.getById(id)
+            const result = await this._{{resourceVar}}Repository.get{{resourceClass}}ById(id)
             if(!result) throw new Error(`Something went wrong when fetching {{resourceVar}} with id: ${id}`)
-            
+
             res.json(result)
         } catch(error){
             next(error)
         }
     }
 
-    create = async(req: Request, res: Response, next: NextFunction) => {
+    create{{resourceClass}} = async(req: Request, res: Response, next: NextFunction) => {
         try{
             const {{resourceVar}}CreationData = req.body
-            const created = await this._{{resourceVar}}Repository.create({{resourceVar}}CreationData)
-              
+            const created = await this._{{resourceVar}}Repository.create{{resourceClass}}({{resourceVar}}CreationData)
+
             res.json(created)
         } catch(error){
             next(error)
         }
     }
 
-    update = async(req: Request, res: Response, next: NextFunction) => {
+    update{{resourceClass}} = async(req: Request, res: Response, next: NextFunction) => {
         try{
             const id = req.params.id as string
             const {{resourceVar}}UpdateData = req.body
-            const updated = await this._{{resourceVar}}Repository.update(id,{{resourceVar}}UpdateData)
+            const updated = await this._{{resourceVar}}Repository.update{{resourceClass}}(id,{{resourceVar}}UpdateData)
             if(!updated) throw new Error(`Something went wrong when updating {{resourceVar}} with id: ${id}`)
 
             res.json(updated)
@@ -57,10 +57,10 @@ export class {{resourceClass}}Controller {
         }
     }
 
-    delete = async(req: Request, res: Response, next: NextFunction) => {
+    delete{{resourceClass}} = async(req: Request, res: Response, next: NextFunction) => {
         try{
             const id = req.params.id as string
-            const deleted = await this._{{resourceVar}}Repository.delete(id)
+            await this._{{resourceVar}}Repository.delete{{resourceClass}}(id)
 
             res.sendStatus(204)
         } catch(error){

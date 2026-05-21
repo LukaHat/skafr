@@ -5,23 +5,23 @@ import { {{resourceClass}}Attributes, Create{{resourceClass}}Attributes, Update{
 @injectable()
 export class {{resourceClass}}Repository{
 
-    getAll = async (): Promise<{{resourceClass}}Attributes[]> => {
+    getAll{{resourceClass}}s = async (): Promise<{{resourceClass}}Attributes[]> => {
         return await {{resourceClass}}.findAll()
     }
 
-    getById = async (id: string): Promise<{{resourceClass}}Attributes> => {
+    get{{resourceClass}}ById = async (id: string): Promise<{{resourceClass}}Attributes> => {
         return await {{resourceClass}}.findByPk(id)
     }
 
-    create = async (data: Create{{resourceClass}}Attributes): Promise<{{resourceClass}}Attributes> => {
+    create{{resourceClass}} = async (data: Create{{resourceClass}}Attributes): Promise<{{resourceClass}}Attributes> => {
         return await {{resourceClass}}.create(data)
     }
 
-    update = async (id: string, data: Update{{resourceClass}}Attributes): Promise<{{resourceClass}}Attributes | null> => {
+    update{{resourceClass}} = async (id: string, data: Update{{resourceClass}}Attributes): Promise<{{resourceClass}}Attributes | null> => {
         return await {{resourceClass}}.update(data, {where: {id}})
     }
 
-    delete = async (id: string) => {
+    delete{{resourceClass}} = async (id: string) => {
         return await {{resourceClass}}.destroy({where: {id}})
     }
 }

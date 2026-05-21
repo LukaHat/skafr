@@ -6,15 +6,15 @@ import { {{resourceClass}}Controller } from "../controllers/{{resourceVar}}Contr
 const {{resourceVar}}Router = Router();
 const {{resourceVar}}Controller = diContainer.get<{{resourceClass}}Controller>(TYPES.{{resourceClass}}Controller);
 
-{{resourceVar}}Router.get("/", {{resourceVar}}Controller.getAll)
+{{resourceVar}}Router.get("/", {{resourceVar}}Controller.getAll{{resourceClass}}s)
 
-{{resourceVar}}Router.post("/", {{resourceVar}}Controller.create)
+{{resourceVar}}Router.post("/", {{resourceVar}}Controller.create{{resourceClass}})
 
-{{resourceVar}}Router.get("/:id", {{resourceVar}}Controller.getById)
+{{resourceVar}}Router.get("/:id", {{resourceVar}}Controller.get{{resourceClass}}ById)
 
-{{resourceVar}}Router.put("/:id", {{resourceVar}}Controller.update)
+{{resourceVar}}Router.put("/:id", {{resourceVar}}Controller.update{{resourceClass}})
 
-{{resourceVar}}Router.delete("/:id", {{resourceVar}}Controller.delete)
+{{resourceVar}}Router.delete("/:id", {{resourceVar}}Controller.delete{{resourceClass}})
 
 
 export default {{resourceVar}}Router;
