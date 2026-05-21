@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync, rmSync } from "fs";
 import { assertSkafrProject, loadConfig } from "../config";
 import { buildResourceContext, renderTemplate } from "../templateEngine";
 import { migrationCommand } from "./migration";
@@ -7,6 +7,8 @@ import { join } from "path";
 import { select } from "@inquirer/prompts";
 
 type ConflictAction = "overwrite" | "skip" | "abort";
+
+type WrittenEntry = { path: string; wasNew: boolean; originalContent?: string };
 
 const resolveConflict = async (
   filePath: string,
@@ -30,19 +32,44 @@ const resolveConflict = async (
   });
 };
 
+const rollback = (written: WrittenEntry[]) => {
+  for (const entry of [...written].reverse()) {
+    try {
+      if (entry.wasNew) {
+        rmSync(entry.path, { force: true });
+        console.error(`  Rolled back (deleted): ${entry.path}`);
+      } else if (entry.originalContent !== undefined) {
+        writeFileSync(entry.path, entry.originalContent);
+        console.error(`  Rolled back (restored): ${entry.path}`);
+      }
+    } catch {
+      console.error(`  Failed to roll back: ${entry.path}`);
+    }
+  }
+};
+
+const trackWrite = (path: string, written: WrittenEntry[], writeFn: () => void) => {
+  const wasNew = !existsSync(path);
+  const originalContent = wasNew ? undefined : readFileSync(path, "utf-8");
+  writeFn();
+  written.push({ path, wasNew, originalContent });
+};
+
 export const addCommand = async (
   resource: string,
   migrationName: string | undefined,
   options: { force: boolean; crud: boolean; skipExisting: boolean; tests: boolean; dryRun: boolean },
 ) => {
-  try {
-    if (resource === "migration") {
-      if (!migrationName)
-        throw new Error("Migration name required. Usage: skafr add migration <name>");
-      migrationCommand(migrationName);
-      return;
-    }
+  if (resource === "migration") {
+    if (!migrationName)
+      throw new Error("Migration name required. Usage: skafr add migration <name>");
+    migrationCommand(migrationName);
+    return;
+  }
 
+  const written: WrittenEntry[] = [];
+
+  try {
     assertSkafrProject();
 
     const config = loadConfig();
@@ -146,7 +173,9 @@ export const addCommand = async (
       if (!apiRouterContent.includes(importLine)) {
         console.log(`\n[dry-run] Would update ${apiRouterPath}:`);
         console.log(`  + ${importLine}`);
-        console.log(`  + apiRouter.use('/${casingVariants.resourceRoute}', ${casingVariants.resourceVar}Router)`);
+        console.log(
+          `  + apiRouter.use('/${casingVariants.resourceRoute}', ${casingVariants.resourceVar}Router)`,
+        );
       }
       return;
     }
@@ -170,27 +199,27 @@ export const addCommand = async (
     }
 
     for (const file of filesToWrite) {
-      renderTemplate(file.template, casingVariants, file.path);
+      trackWrite(file.path, written, () =>
+        renderTemplate(file.template, casingVariants, file.path),
+      );
     }
 
     const apiRouterPath = join(config.srcDir, "routes", "apiRouter.ts");
     const apiRouterContent = readFileSync(apiRouterPath, "utf-8");
-
     const importLine = `import ${casingVariants.resourceVar}Router from './${casingVariants.resourceFile}Router'`;
 
     if (!apiRouterContent.includes(importLine)) {
-      const lines = apiRouterContent.split("\n");
-      const exportIndex = lines.findIndex((line) => line.includes("export default apiRouter"));
-
-      lines.splice(
-        exportIndex,
-        0,
-        `apiRouter.use('/${casingVariants.resourceRoute}', ${casingVariants.resourceVar}Router)`,
-      );
-
-      lines.splice(0, 0, importLine);
-
-      writeFileSync(apiRouterPath, lines.join("\n"));
+      trackWrite(apiRouterPath, written, () => {
+        const lines = apiRouterContent.split("\n");
+        const exportIndex = lines.findIndex((line) => line.includes("export default apiRouter"));
+        lines.splice(
+          exportIndex,
+          0,
+          `apiRouter.use('/${casingVariants.resourceRoute}', ${casingVariants.resourceVar}Router)`,
+        );
+        lines.splice(0, 0, importLine);
+        writeFileSync(apiRouterPath, lines.join("\n"));
+      });
     }
 
     const typesPath = join(config.srcDir, "di", "TYPES.ts");
@@ -200,10 +229,15 @@ export const addCommand = async (
       const repositorySymbol = `  ${casingVariants.resourceClass}Repository: Symbol.for("${casingVariants.resourceClass}Repository"),`;
 
       if (!typesContent.includes(`${casingVariants.resourceClass}Controller`)) {
-        const lines = typesContent.split("\n");
-        const closingIndex = lines.reduce<number>((last, l, i) => (l.trim() === "};" ? i : last), -1);
-        lines.splice(closingIndex, 0, controllerSymbol, repositorySymbol);
-        writeFileSync(typesPath, lines.join("\n"));
+        trackWrite(typesPath, written, () => {
+          const lines = typesContent.split("\n");
+          const closingIndex = lines.reduce<number>(
+            (last, l, i) => (l.trim() === "};" ? i : last),
+            -1,
+          );
+          lines.splice(closingIndex, 0, controllerSymbol, repositorySymbol);
+          writeFileSync(typesPath, lines.join("\n"));
+        });
       }
     }
 
@@ -216,21 +250,24 @@ export const addCommand = async (
       const repositoryBind = `container.bind<${casingVariants.resourceClass}Repository>(TYPES.${casingVariants.resourceClass}Repository).to(${casingVariants.resourceClass}Repository)`;
 
       if (!containerContent.includes(controllerImport)) {
-        const lines = containerContent.split("\n");
-
-        const lastImportIndex = lines.reduce<number>(
-          (last, line, i) => (line.startsWith("import ") ? i : last),
-          -1,
-        );
-        lines.splice(lastImportIndex + 1, 0, controllerImport, repositoryImport);
-
-        const exportIndex = lines.findIndex((l) => l.includes("export default container"));
-        lines.splice(exportIndex, 0, controllerBind, repositoryBind, "");
-
-        writeFileSync(containerPath, lines.join("\n"));
+        trackWrite(containerPath, written, () => {
+          const lines = containerContent.split("\n");
+          const lastImportIndex = lines.reduce<number>(
+            (last, line, i) => (line.startsWith("import ") ? i : last),
+            -1,
+          );
+          lines.splice(lastImportIndex + 1, 0, controllerImport, repositoryImport);
+          const exportIndex = lines.findIndex((l) => l.includes("export default container"));
+          lines.splice(exportIndex, 0, controllerBind, repositoryBind, "");
+          writeFileSync(containerPath, lines.join("\n"));
+        });
       }
     }
   } catch (error) {
+    if (written.length > 0) {
+      console.error("Generation failed. Rolling back:");
+      rollback(written);
+    }
     throw new Error(`Failed to generate resource: ${(error as Error).message}`, { cause: error });
   }
 };
