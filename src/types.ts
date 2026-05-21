@@ -36,4 +36,5 @@ export type InitOptions = {
   db: SupportedDBs;
   aiFiles: AiFilesMode;
   force: boolean;
+  yes: boolean;
 };

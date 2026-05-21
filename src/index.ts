@@ -42,6 +42,7 @@ program
       .default(AiFilesMode.all)
   )
   .option("-f, --force", "skip overwrite prompts and reinitialize", false)
+  .option("-y, --yes", "auto-confirm all prompts (CI/non-interactive mode)", false)
   .description("Initialize a new project with the given name")
   .action(async (projectName, options) => {
     await initCommand(projectName, options);
