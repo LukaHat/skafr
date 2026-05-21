@@ -30,6 +30,8 @@ export const generatePackageJSON = (
         "pg-hstore": "^2.3.4",
       }),
 
+      zod: "^3.25.67",
+
       ...(options.orm === SupportedOrms.sequelize && {
         sequelize: "^6.37.7",
       }),
