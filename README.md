@@ -110,8 +110,9 @@ skafr add comment --force
 
 | Flag      | Default | Description                                           |
 | --------- | ------- | ----------------------------------------------------- |
-| `--crud`  | off     | Pre-fill CRUD method stubs with typed implementations |
-| `--force` | off     | Overwrite existing files                              |
+| `--crud`           | off | Pre-fill CRUD method stubs with typed implementations   |
+| `--force`          | off | Overwrite existing files without prompting              |
+| `--skip-existing`  | off | Skip files that already exist without prompting         |
 
 **Generated files:**
 
