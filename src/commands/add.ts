@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { assertSkafrProject, loadConfig } from "../config";
 import { buildResourceContext, renderTemplate } from "../templateEngine";
+import { migrationCommand } from "./migration";
 import { SupportedOrms } from "../types";
 import { join } from "path";
 import { select } from "@inquirer/prompts";
@@ -31,9 +32,17 @@ const resolveConflict = async (
 
 export const addCommand = async (
   resource: string,
+  migrationName: string | undefined,
   options: { force: boolean; crud: boolean; skipExisting: boolean; tests: boolean; dryRun: boolean },
 ) => {
   try {
+    if (resource === "migration") {
+      if (!migrationName)
+        throw new Error("Migration name required. Usage: skafr add migration <name>");
+      migrationCommand(migrationName);
+      return;
+    }
+
     assertSkafrProject();
 
     const config = loadConfig();
