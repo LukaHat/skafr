@@ -121,7 +121,8 @@ src/
 ├── models/userModel.ts
 ├── controllers/userController.ts
 ├── repositories/userRepository.ts
-└── routes/userRouter.ts
+├── routes/userRouter.ts
+└── validators/userValidator.ts
 ```
 
 `apiRouter.ts` is automatically updated:

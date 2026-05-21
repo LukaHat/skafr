@@ -51,6 +51,7 @@ export const initCommand = async (
       "src/di",
       "src/constants",
       "src/db/repositories",
+      "src/validators",
     ];
 
     mkdirSync(join(cwd(), projectName));
@@ -347,6 +348,23 @@ export const initCommand = async (
     writeFileSync(
       join(cwd(), projectName, "src", "middlewares", "errorMiddleware.ts"),
       errorMiddlewareFile,
+    );
+
+    const validateBodyFile = readFileSync(
+      join(
+        __dirname,
+        "..",
+        "templates",
+        "express",
+        "init",
+        "middlewares",
+        "validateBody.ts.template",
+      ),
+    );
+
+    writeFileSync(
+      join(cwd(), projectName, "src", "middlewares", "validateBody.ts"),
+      validateBodyFile,
     );
 
     if (options.auth) {

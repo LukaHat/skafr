@@ -51,6 +51,11 @@ export const addCommand = async (
       casingVariants.resourceFile + "Repository.ts",
     );
     const routerPath = join(config.srcDir, "routes", casingVariants.resourceFile + "Router.ts");
+    const validatorPath = join(
+      config.srcDir,
+      "validators",
+      casingVariants.resourceFile + "Validator.ts",
+    );
 
     const modelTemplate = readFileSync(
       join(__dirname, "..", "templates", "express", "resources", "model.ts.template"),
@@ -82,12 +87,17 @@ export const addCommand = async (
       join(__dirname, "..", "templates", "express", "resources", "routes.ts.template"),
       "utf-8",
     );
+    const validatorTemplate = readFileSync(
+      join(__dirname, "..", "templates", "express", "resources", "validator.ts.template"),
+      "utf-8",
+    );
 
     const files = [
       { path: modelPath, template: modelTemplate },
       { path: controllerPath, template: controllerTemplate },
       { path: repositoryPath, template: repositoryTemplate },
       { path: routerPath, template: routerTemplate },
+      { path: validatorPath, template: validatorTemplate },
     ];
 
     const filesToWrite: typeof files = [];

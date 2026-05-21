@@ -1,0 +1,10 @@
+import { z } from "zod"
+
+export const Create{{resourceClass}}Schema = z.object({
+    // TODO: define your {{resourceClass}} fields here
+})
+
+export const Update{{resourceClass}}Schema = Create{{resourceClass}}Schema.partial()
+
+export type Create{{resourceClass}}Input = z.infer<typeof Create{{resourceClass}}Schema>
+export type Update{{resourceClass}}Input = z.infer<typeof Update{{resourceClass}}Schema>

@@ -2,17 +2,19 @@ import { Router } from "express"
 import diContainer from "../di/inversify.config"
 import { TYPES } from "../di/TYPES"
 import { {{resourceClass}}Controller } from "../controllers/{{resourceVar}}Controller"
+import { Create{{resourceClass}}Schema, Update{{resourceClass}}Schema } from "../validators/{{resourceFile}}Validator"
+import { validateBody } from "../middlewares/validateBody"
 
 const {{resourceVar}}Router = Router();
 const {{resourceVar}}Controller = diContainer.get<{{resourceClass}}Controller>(TYPES.{{resourceClass}}Controller);
 
 {{resourceVar}}Router.get("/", {{resourceVar}}Controller.getAll{{resourceClass}}s)
 
-{{resourceVar}}Router.post("/", {{resourceVar}}Controller.create{{resourceClass}})
+{{resourceVar}}Router.post("/", validateBody(Create{{resourceClass}}Schema), {{resourceVar}}Controller.create{{resourceClass}})
 
 {{resourceVar}}Router.get("/:id", {{resourceVar}}Controller.get{{resourceClass}}ById)
 
-{{resourceVar}}Router.put("/:id", {{resourceVar}}Controller.update{{resourceClass}})
+{{resourceVar}}Router.put("/:id", validateBody(Update{{resourceClass}}Schema), {{resourceVar}}Controller.update{{resourceClass}})
 
 {{resourceVar}}Router.delete("/:id", {{resourceVar}}Controller.delete{{resourceClass}})
 
