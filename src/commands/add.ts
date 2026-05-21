@@ -31,7 +31,7 @@ const resolveConflict = async (
 
 export const addCommand = async (
   resource: string,
-  options: { force: boolean; crud: boolean; skipExisting: boolean; tests: boolean },
+  options: { force: boolean; crud: boolean; skipExisting: boolean; tests: boolean; dryRun: boolean },
 ) => {
   try {
     assertSkafrProject();
@@ -123,6 +123,24 @@ export const addCommand = async (
           ]
         : []),
     ];
+
+    if (options.dryRun) {
+      console.log("[dry-run] Would generate:");
+      for (const file of files) {
+        console.log(`  ${file.path}`);
+      }
+      const apiRouterPath = join(config.srcDir, "routes", "apiRouter.ts");
+      const apiRouterContent = existsSync(apiRouterPath)
+        ? readFileSync(apiRouterPath, "utf-8")
+        : "";
+      const importLine = `import ${casingVariants.resourceVar}Router from './${casingVariants.resourceFile}Router'`;
+      if (!apiRouterContent.includes(importLine)) {
+        console.log(`\n[dry-run] Would update ${apiRouterPath}:`);
+        console.log(`  + ${importLine}`);
+        console.log(`  + apiRouter.use('/${casingVariants.resourceRoute}', ${casingVariants.resourceVar}Router)`);
+      }
+      return;
+    }
 
     const filesToWrite: typeof files = [];
 

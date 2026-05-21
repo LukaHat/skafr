@@ -51,6 +51,7 @@ skafr init my-app --no-auth
 | `--no-auth`       | auth enabled | Skip JWT auth scaffolding                |
 | `-f, --force`     | off          | Skip overwrite prompts and reinitialise  |
 | `-y, --yes`       | off          | Auto-confirm all prompts (CI/no-TTY use) |
+| `--dry-run`       | off          | Preview files that would be created      |
 
 **Generated structure:**
 
@@ -114,6 +115,7 @@ skafr add comment --force
 | `--force`          | off | Overwrite existing files without prompting              |
 | `--skip-existing`  | off | Skip files that already exist without prompting         |
 | `--no-tests`       | off | Skip test file generation                               |
+| `--dry-run`        | off | Preview files that would be generated                   |
 
 **Generated files:**
 

@@ -28,6 +28,46 @@ export const initCommand = async (
       console.warn("Warning: no TTY detected — running in non-interactive mode.");
     }
 
+    if (options.dryRun) {
+      console.log(`[dry-run] Would create project: ${projectName}/`);
+      console.log("[dry-run] Directories:");
+      const previewDirs = [
+        "src/controllers", "src/routes", "src/models", "src/middlewares",
+        "src/repositories", "src/utils", "src/di", "src/constants",
+        "src/db/repositories", "src/validators", "src/__tests__",
+      ];
+      previewDirs.forEach((d) => console.log(`  ${d}/`));
+      console.log("[dry-run] Files:");
+      const previewFiles = [
+        "package.json", "tsconfig.json", ".skafrc", ".env.example",
+        "src/app.ts", "src/server.ts", "src/config.ts", "src/routes/apiRouter.ts",
+        "src/di/TYPES.ts", "src/di/inversify.config.ts",
+        "src/constants/appConstants.ts", "src/constants/appStrings.ts",
+        "src/utils/errors.ts", "src/utils/helpers.ts", "src/utils/successResponses.ts",
+        "src/middlewares/errorMiddleware.ts", "src/middlewares/validateBody.ts",
+        ...(options.orm === SupportedOrms.sequelize ? ["src/db.ts"] : []),
+      ];
+      if (options.auth) {
+        previewFiles.push(
+          "src/types.ts",
+          "src/models/userModel.ts",
+          "src/middlewares/authMiddleware.ts",
+          "src/db/repositories/userRepository.ts",
+          "src/controllers/authController.ts",
+          "src/routes/authRouter.ts",
+        );
+      }
+      const aiMode = options.aiFiles ?? AiFilesMode.all;
+      if (aiMode === AiFilesMode.all || aiMode === AiFilesMode.claude) {
+        previewFiles.push("AGENTS.md", "CLAUDE.md -> AGENTS.md");
+      }
+      if (aiMode === AiFilesMode.all || aiMode === AiFilesMode.copilot) {
+        previewFiles.push(".github/copilot-instructions.md");
+      }
+      previewFiles.forEach((f) => console.log(`  ${f}`));
+      return;
+    }
+
     const dirExists = existsSync(join(cwd(), projectName));
     if (dirExists && !nonInteractive) {
       const skafrConfigExists = existsSync(join(cwd(), projectName, ".skafrc"));
