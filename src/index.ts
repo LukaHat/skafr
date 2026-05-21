@@ -43,6 +43,7 @@ program
   )
   .option("-f, --force", "skip overwrite prompts and reinitialize", false)
   .option("-y, --yes", "auto-confirm all prompts (CI/non-interactive mode)", false)
+  .option("--dry-run", "preview files that would be created without writing", false)
   .description("Initialize a new project with the given name")
   .action(async (projectName, options) => {
     await initCommand(projectName, options);
@@ -53,6 +54,7 @@ program
   .option("-f, --force", "overwrite existing files", false)
   .option("--skip-existing", "skip files that already exist without prompting", false)
   .option("--no-tests", "skip test file generation")
+  .option("--dry-run", "preview files that would be generated without writing", false)
   .option(
     "--crud",
     "generate controllers and repositories with existing crud implementations",

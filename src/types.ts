@@ -38,4 +38,5 @@ export type InitOptions = {
   aiFiles: AiFilesMode;
   force: boolean;
   yes: boolean;
+  dryRun: boolean;
 };
