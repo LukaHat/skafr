@@ -1,3 +1,4 @@
+
 import { injectable } from "inversify"
 import { {{resourceClass}}Attributes, Create{{resourceClass}}Attributes, Update{{resourceClass}}Attributes } from '../models/{{resourceFile}}Model'
 
@@ -5,27 +6,22 @@ import { {{resourceClass}}Attributes, Create{{resourceClass}}Attributes, Update{
 export class {{resourceClass}}Repository{
 
     getAll{{resourceClass}}s = async (): Promise<{{resourceClass}}Attributes[]> => {
-        // TODO: fetch all {{resourceClass}} records using your ORM
-        throw new Error("Not implemented")
+        return await {{resourceClass}}.findAll()
     }
 
     get{{resourceClass}}ById = async (id: string): Promise<{{resourceClass}}Attributes> => {
-        // TODO: fetch single {{resourceClass}} by primary key
-        throw new Error("Not implemented")
+        return await {{resourceClass}}.findByPk(id)
     }
 
     create{{resourceClass}} = async (data: Create{{resourceClass}}Attributes): Promise<{{resourceClass}}Attributes> => {
-        // TODO: insert new {{resourceClass}} record
-        throw new Error("Not implemented")
+        return await {{resourceClass}}.create(data)
     }
 
     update{{resourceClass}} = async (id: string, data: Update{{resourceClass}}Attributes): Promise<{{resourceClass}}Attributes | null> => {
-        // TODO: update {{resourceClass}} record by id
-        throw new Error("Not implemented")
+        return await {{resourceClass}}.update(data, {where: {id}})
     }
 
-    delete{{resourceClass}} = async (id: string): Promise<void> => {
-        // TODO: delete {{resourceClass}} record by id
-        throw new Error("Not implemented")
+    delete{{resourceClass}} = async (id: string) => {
+        return await {{resourceClass}}.destroy({where: {id}})
     }
 }
