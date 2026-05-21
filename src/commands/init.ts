@@ -23,8 +23,13 @@ export const initCommand = async (
         "Invalid project name. Use only letters, numbers, hyphens, and underscores.",
       );
 
+    const nonInteractive = options.yes || options.force || !process.stdin.isTTY;
+    if (nonInteractive && !process.stdin.isTTY && !options.yes && !options.force) {
+      console.warn("Warning: no TTY detected — running in non-interactive mode.");
+    }
+
     const dirExists = existsSync(join(cwd(), projectName));
-    if (dirExists && !options.force) {
+    if (dirExists && !nonInteractive) {
       const skafrConfigExists = existsSync(join(cwd(), projectName, ".skafrc"));
       const message = skafrConfigExists
         ? `skafr project already exists in '${projectName}'. Reinitialise? This will overwrite base files. (y/N)`

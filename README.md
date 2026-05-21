@@ -43,12 +43,14 @@ skafr init my-app --no-auth
 
 **Flags:**
 
-| Flag              | Default      | Description               |
-| ----------------- | ------------ | ------------------------- |
-| `--stack <stack>` | `express`    | Stack to use (`express`)  |
-| `--orm <orm>`     | `sequelize`  | ORM to use (`sequelize`)  |
-| `--db <db>`       | `postgres`   | Database (`postgres`)     |
-| `--no-auth`       | auth enabled | Skip JWT auth scaffolding |
+| Flag              | Default      | Description                              |
+| ----------------- | ------------ | ---------------------------------------- |
+| `--stack <stack>` | `express`    | Stack to use (`express`)                 |
+| `--orm <orm>`     | `sequelize`  | ORM to use (`sequelize`)                 |
+| `--db <db>`       | `postgres`   | Database (`postgres`)                    |
+| `--no-auth`       | auth enabled | Skip JWT auth scaffolding                |
+| `-f, --force`     | off          | Skip overwrite prompts and reinitialise  |
+| `-y, --yes`       | off          | Auto-confirm all prompts (CI/no-TTY use) |
 
 **Generated structure:**
 
