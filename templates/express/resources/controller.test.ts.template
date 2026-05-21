@@ -1,0 +1,48 @@
+import { describe, it, vi, beforeEach } from "vitest"
+import { {{resourceClass}}Controller } from "../controllers/{{resourceFile}}Controller"
+import { {{resourceClass}}Repository } from "../repositories/{{resourceFile}}Repository"
+
+const mock{{resourceClass}}Repository = {
+    getAll{{resourceClass}}s: vi.fn(),
+    get{{resourceClass}}ById: vi.fn(),
+    create{{resourceClass}}: vi.fn(),
+    update{{resourceClass}}: vi.fn(),
+    delete{{resourceClass}}: vi.fn(),
+} as unknown as {{resourceClass}}Repository
+
+const controller = new {{resourceClass}}Controller(mock{{resourceClass}}Repository)
+
+const mockReq = (overrides = {}) => ({ ...overrides }) as any
+const mockRes = () => {
+    const res: any = {}
+    res.json = vi.fn().mockReturnValue(res)
+    res.sendStatus = vi.fn().mockReturnValue(res)
+    return res
+}
+const mockNext = vi.fn()
+
+describe("{{resourceClass}}Controller", () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    it("getAll{{resourceClass}}s", async () => {
+        // TODO: implement test
+    })
+
+    it("get{{resourceClass}}ById", async () => {
+        // TODO: implement test
+    })
+
+    it("create{{resourceClass}}", async () => {
+        // TODO: implement test
+    })
+
+    it("update{{resourceClass}}", async () => {
+        // TODO: implement test
+    })
+
+    it("delete{{resourceClass}}", async () => {
+        // TODO: implement test
+    })
+})

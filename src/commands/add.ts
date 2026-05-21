@@ -30,7 +30,7 @@ const resolveConflict = async (
 
 export const addCommand = async (
   resource: string,
-  options: { force: boolean; crud: boolean; skipExisting: boolean },
+  options: { force: boolean; crud: boolean; skipExisting: boolean; tests: boolean },
 ) => {
   try {
     assertSkafrProject();
@@ -55,6 +55,16 @@ export const addCommand = async (
       config.srcDir,
       "validators",
       casingVariants.resourceFile + "Validator.ts",
+    );
+    const controllerTestPath = join(
+      config.srcDir,
+      "__tests__",
+      casingVariants.resourceFile + "Controller.test.ts",
+    );
+    const repositoryTestPath = join(
+      config.srcDir,
+      "__tests__",
+      casingVariants.resourceFile + "Repository.test.ts",
     );
 
     const modelTemplate = readFileSync(
@@ -91,6 +101,14 @@ export const addCommand = async (
       join(__dirname, "..", "templates", "express", "resources", "validator.ts.template"),
       "utf-8",
     );
+    const controllerTestTemplate = readFileSync(
+      join(__dirname, "..", "templates", "express", "resources", "controller.test.ts.template"),
+      "utf-8",
+    );
+    const repositoryTestTemplate = readFileSync(
+      join(__dirname, "..", "templates", "express", "resources", "repository.test.ts.template"),
+      "utf-8",
+    );
 
     const files = [
       { path: modelPath, template: modelTemplate },
@@ -98,6 +116,12 @@ export const addCommand = async (
       { path: repositoryPath, template: repositoryTemplate },
       { path: routerPath, template: routerTemplate },
       { path: validatorPath, template: validatorTemplate },
+      ...(options.tests
+        ? [
+            { path: controllerTestPath, template: controllerTestTemplate },
+            { path: repositoryTestPath, template: repositoryTestTemplate },
+          ]
+        : []),
     ];
 
     const filesToWrite: typeof files = [];
