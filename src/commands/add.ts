@@ -2,49 +2,60 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 import { assertSkafrProject, loadConfig } from "../config";
 import { buildResourceContext, renderTemplate } from "../templateEngine";
 import { join } from "path";
+import { select } from "@inquirer/prompts";
 
-export const addCommand = (
+type ConflictAction = "overwrite" | "skip" | "abort";
+
+const resolveConflict = async (
+  filePath: string,
+  options: { force: boolean; skipExisting: boolean },
+  nonInteractive: boolean,
+): Promise<ConflictAction> => {
+  if (options.force) return "overwrite";
+  if (options.skipExisting) return "skip";
+  if (nonInteractive)
+    throw new Error(
+      `File already exists: ${filePath}. Use --force to overwrite or --skip-existing to skip.`,
+    );
+
+  return select<ConflictAction>({
+    message: `File already exists: ${filePath}`,
+    choices: [
+      { value: "overwrite", name: "Overwrite" },
+      { value: "skip", name: "Skip" },
+      { value: "abort", name: "Abort" },
+    ],
+  });
+};
+
+export const addCommand = async (
   resource: string,
-  options: { force: boolean; crud: boolean },
+  options: { force: boolean; crud: boolean; skipExisting: boolean },
 ) => {
   try {
     assertSkafrProject();
 
     const config = loadConfig();
     const casingVariants = buildResourceContext(resource);
+    const nonInteractive = !options.force && !options.skipExisting && !process.stdin.isTTY;
 
-    const modelPath = join(
-      config.srcDir,
-      "models",
-      casingVariants.resourceFile + "Model.ts",
-    );
-    if (existsSync(modelPath) && !options.force)
-      throw new Error(
-        `File already exists: ${modelPath}, Use --force to overwrite.`,
-      );
-    const modelTemplate = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "resources",
-        "model.ts.template",
-      ),
-      "utf-8",
-    );
-
+    const modelPath = join(config.srcDir, "models", casingVariants.resourceFile + "Model.ts");
     const controllerPath = join(
       config.srcDir,
       "controllers",
       casingVariants.resourceFile + "Controller.ts",
     );
+    const repositoryPath = join(
+      config.srcDir,
+      "repositories",
+      casingVariants.resourceFile + "Repository.ts",
+    );
+    const routerPath = join(config.srcDir, "routes", casingVariants.resourceFile + "Router.ts");
 
-    if (existsSync(controllerPath) && !options.force)
-      throw new Error(
-        `File already exists: ${controllerPath}, Use --force to overwrite.`,
-      );
-
+    const modelTemplate = readFileSync(
+      join(__dirname, "..", "templates", "express", "resources", "model.ts.template"),
+      "utf-8",
+    );
     const controllerTemplate = readFileSync(
       join(
         __dirname,
@@ -56,17 +67,6 @@ export const addCommand = (
       ),
       "utf-8",
     );
-
-    const repositoryPath = join(
-      config.srcDir,
-      "repositories",
-      casingVariants.resourceFile + "Repository.ts",
-    );
-
-    if (existsSync(repositoryPath) && !options.force)
-      throw new Error(
-        `File already exists: ${repositoryPath}, Use --force to overwrite.`,
-      );
     const repositoryTemplate = readFileSync(
       join(
         __dirname,
@@ -78,34 +78,39 @@ export const addCommand = (
       ),
       "utf-8",
     );
-
-    const routerPath = join(
-      config.srcDir,
-      "routes",
-      casingVariants.resourceFile + "Router.ts",
-    );
-
-    if (existsSync(routerPath) && !options.force)
-      throw new Error(
-        `File already exists: ${routerPath}, Use --force to overwrite.`,
-      );
-
     const routerTemplate = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "resources",
-        "routes.ts.template",
-      ),
+      join(__dirname, "..", "templates", "express", "resources", "routes.ts.template"),
       "utf-8",
     );
 
-    renderTemplate(modelTemplate, casingVariants, modelPath);
-    renderTemplate(controllerTemplate, casingVariants, controllerPath);
-    renderTemplate(repositoryTemplate, casingVariants, repositoryPath);
-    renderTemplate(routerTemplate, casingVariants, routerPath);
+    const files = [
+      { path: modelPath, template: modelTemplate },
+      { path: controllerPath, template: controllerTemplate },
+      { path: repositoryPath, template: repositoryTemplate },
+      { path: routerPath, template: routerTemplate },
+    ];
+
+    const filesToWrite: typeof files = [];
+
+    for (const file of files) {
+      if (existsSync(file.path)) {
+        const action = await resolveConflict(file.path, options, nonInteractive);
+        if (action === "abort") {
+          console.log("Aborted.");
+          return;
+        }
+        if (action === "skip") {
+          console.log(`Skipped: ${file.path}`);
+          continue;
+        }
+        console.log(`Overwriting: ${file.path}`);
+      }
+      filesToWrite.push(file);
+    }
+
+    for (const file of filesToWrite) {
+      renderTemplate(file.template, casingVariants, file.path);
+    }
 
     const apiRouterPath = join(config.srcDir, "routes", "apiRouter.ts");
     const apiRouterContent = readFileSync(apiRouterPath, "utf-8");
@@ -114,9 +119,7 @@ export const addCommand = (
 
     if (!apiRouterContent.includes(importLine)) {
       const lines = apiRouterContent.split("\n");
-      const exportIndex = lines.findIndex((line) =>
-        line.includes("export default apiRouter"),
-      );
+      const exportIndex = lines.findIndex((line) => line.includes("export default apiRouter"));
 
       lines.splice(
         exportIndex,

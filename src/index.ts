@@ -51,14 +51,15 @@ program
 program
   .command("add <resource>")
   .option("-f, --force", "overwrite existing files", false)
+  .option("--skip-existing", "skip files that already exist without prompting", false)
   .option(
     "--crud",
     "generate controllers and repositories with existing crud implementations",
     false
   )
   .description("Implement scaffolding for given resource")
-  .action((resource, options) => {
-    addCommand(resource, options);
+  .action(async (resource, options) => {
+    await addCommand(resource, options);
   });
 
 program
