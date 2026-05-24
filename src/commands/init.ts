@@ -12,6 +12,7 @@ import { join } from "path";
 import { cwd } from "process";
 import { generatePackageJSON } from "../generators/initGenerator";
 import { spawnSync } from "child_process";
+import { getAuthTemplatePath, getInitTemplatePath, patchFile } from "../utils/helper";
 
 export const initCommand = async (
   projectName: string,
@@ -114,57 +115,27 @@ export const initCommand = async (
       JSON.stringify(packageJSONRaw, null, 2),
     );
 
-    const app = readFileSync(
-      join(__dirname, "..", "templates", "express", "init", "app.ts.template"),
-      "utf-8",
-    );
+    const app = readFileSync(getInitTemplatePath("app.ts.template"), "utf-8");
 
     writeFileSync(join(cwd(), projectName, "src", "app.ts"), app);
 
-    const server = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "server.ts.template",
-      ),
-      "utf-8",
-    );
+    const server = readFileSync(getInitTemplatePath("server.ts.template"), "utf-8");
 
     writeFileSync(join(cwd(), projectName, "src", "server.ts"), server);
 
-    const apiRouter = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "routes",
-        "apiRouter.ts.template",
-      ),
-      "utf-8",
-    );
+    const apiRouter = readFileSync(getInitTemplatePath("routes", "apiRouter.ts.template"), "utf-8");
     writeFileSync(join(cwd(), projectName, "src", "routes", "apiRouter.ts"), apiRouter);
 
     const configTemplate = options.auth
       ? "config.ts.template"
       : "config.no-auth.ts.template";
 
-    const config = readFileSync(
-      join(__dirname, "..", "templates", "express", "init", configTemplate),
-      "utf-8",
-    );
+    const config = readFileSync(getInitTemplatePath(configTemplate), "utf-8");
 
     writeFileSync(join(cwd(), projectName, "src", "config.ts"), config);
 
     if (options.orm === SupportedOrms.sequelize) {
-      const dbFile = readFileSync(
-        join(__dirname, "..", "templates", "express", "init", "db.ts.template"),
-        "utf-8",
-      );
+      const dbFile = readFileSync(getInitTemplatePath("db.ts.template"), "utf-8");
       writeFileSync(join(cwd(), projectName, "src", "db.ts"), dbFile);
     }
 
@@ -172,24 +143,11 @@ export const initCommand = async (
       ? ".env.example.template"
       : ".env.no-auth.example.template";
 
-    const envExample = readFileSync(
-      join(__dirname, "..", "templates", "express", "init", envTemplate),
-      "utf-8",
-    );
+    const envExample = readFileSync(getInitTemplatePath(envTemplate), "utf-8");
 
     writeFileSync(join(cwd(), projectName, ".env.example"), envExample);
 
-    const tsConfig = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "tsconfig.json.template",
-      ),
-      "utf-8",
-    );
+    const tsConfig = readFileSync(getInitTemplatePath("tsconfig.json.template"), "utf-8");
 
     writeFileSync(join(cwd(), projectName, "tsconfig.json"), tsConfig);
 
@@ -206,17 +164,7 @@ export const initCommand = async (
     const aiFilesMode = options.aiFiles ?? AiFilesMode.all;
 
     if (aiFilesMode === AiFilesMode.all || aiFilesMode === AiFilesMode.claude) {
-      const agentsTemplate = readFileSync(
-        join(
-          __dirname,
-          "..",
-          "templates",
-          "express",
-          "init",
-          "AGENTS.md.template",
-        ),
-        "utf-8",
-      );
+      const agentsTemplate = readFileSync(getInitTemplatePath("AGENTS.md.template"), "utf-8");
 
       writeFileSync(join(cwd(), projectName, "AGENTS.md"), agentsTemplate);
       symlinkSync("./AGENTS.md", join(cwd(), projectName, "CLAUDE.md"), "file");
@@ -232,17 +180,7 @@ export const initCommand = async (
     }
 
     if (aiFilesMode === AiFilesMode.copilot) {
-      const copilotTemplate = readFileSync(
-        join(
-          __dirname,
-          "..",
-          "templates",
-          "express",
-          "init",
-          "copilot-instructions.md.template",
-        ),
-        "utf-8",
-      );
+      const copilotTemplate = readFileSync(getInitTemplatePath("copilot-instructions.md.template"), "utf-8");
 
       mkdirSync(join(cwd(), projectName, ".github"), { recursive: true });
       writeFileSync(
@@ -255,153 +193,63 @@ export const initCommand = async (
       ? "types.ts.template"
       : "types.no-auth.ts.template";
 
-    const diTypesFile = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "di",
-        typesTemplate,
-      ),
-    );
+    const diTypesFile = readFileSync(getInitTemplatePath("di", typesTemplate));
 
     writeFileSync(
       join(cwd(), projectName, "src", "di", "TYPES.ts"),
       diTypesFile,
     );
 
-    const diContainerFile = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "di",
-        "inversify.config.ts.template",
-      ),
-    );
+    const diContainerFile = readFileSync(getInitTemplatePath("di", "inversify.config.ts.template"));
 
     writeFileSync(
       join(cwd(), projectName, "src", "di", "inversify.config.ts"),
       diContainerFile,
     );
 
-    const appConstantsFile = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "constants",
-        "appConstants.ts.template",
-      ),
-    );
+    const appConstantsFile = readFileSync(getInitTemplatePath("constants", "appConstants.ts.template"));
 
     writeFileSync(
       join(cwd(), projectName, "src", "constants", "appConstants.ts"),
       appConstantsFile,
     );
 
-    const appStringsFile = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "constants",
-        "appStrings.ts.template",
-      ),
-    );
+    const appStringsFile = readFileSync(getInitTemplatePath("constants", "appStrings.ts.template"));
 
     writeFileSync(
       join(cwd(), projectName, "src", "constants", "appStrings.ts"),
       appStringsFile,
     );
 
-    const errorsFile = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "utils",
-        "errors.ts.template",
-      ),
-    );
+    const errorsFile = readFileSync(getInitTemplatePath("utils", "errors.ts.template"));
 
     writeFileSync(
       join(cwd(), projectName, "src", "utils", "errors.ts"),
       errorsFile,
     );
 
-    const helpersFile = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "utils",
-        "helpers.ts.template",
-      ),
-    );
+    const helpersFile = readFileSync(getInitTemplatePath("utils", "helpers.ts.template"));
 
     writeFileSync(
       join(cwd(), projectName, "src", "utils", "helpers.ts"),
       helpersFile,
     );
 
-    const successResponsesFile = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "utils",
-        "successResponses.ts.template",
-      ),
-    );
+    const successResponsesFile = readFileSync(getInitTemplatePath("utils", "successResponses.ts.template"));
 
     writeFileSync(
       join(cwd(), projectName, "src", "utils", "successResponses.ts"),
       successResponsesFile,
     );
 
-    const errorMiddlewareFile = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "middlewares",
-        "errorMiddleware.ts.template",
-      ),
-    );
+    const errorMiddlewareFile = readFileSync(getInitTemplatePath("middlewares", "errorMiddleware.ts.template"));
 
     writeFileSync(
       join(cwd(), projectName, "src", "middlewares", "errorMiddleware.ts"),
       errorMiddlewareFile,
     );
 
-    const validateBodyFile = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "init",
-        "middlewares",
-        "validateBody.ts.template",
-      ),
-    );
+    const validateBodyFile = readFileSync(getInitTemplatePath("middlewares", "validateBody.ts.template"));
 
     writeFileSync(
       join(cwd(), projectName, "src", "middlewares", "validateBody.ts"),
@@ -409,61 +257,25 @@ export const initCommand = async (
     );
 
     if (options.auth) {
-      const typesFile = readFileSync(
-        join(
-          __dirname,
-          "..",
-          "templates",
-          "express",
-          "auth",
-          "types.ts.template",
-        ),
-      );
+      const typesFile = readFileSync(getAuthTemplatePath("types.ts.template"));
 
       writeFileSync(join(cwd(), projectName, "src", "types.ts"), typesFile);
 
-      const userModelFile = readFileSync(
-        join(
-          __dirname,
-          "..",
-          "templates",
-          "express",
-          "auth",
-          "userModel.ts.template",
-        ),
-      );
+      const userModelFile = readFileSync(getAuthTemplatePath("userModel.ts.template"));
 
       writeFileSync(
         join(cwd(), projectName, "src", "models", "userModel.ts"),
         userModelFile,
       );
 
-      const authMiddlewareFile = readFileSync(
-        join(
-          __dirname,
-          "..",
-          "templates",
-          "express",
-          "auth",
-          "authMiddleware.ts.template",
-        ),
-      );
+      const authMiddlewareFile = readFileSync(getAuthTemplatePath("authMiddleware.ts.template"));
 
       writeFileSync(
         join(cwd(), projectName, "src", "middlewares", "authMiddleware.ts"),
         authMiddlewareFile,
       );
 
-      const userRepositoryFile = readFileSync(
-        join(
-          __dirname,
-          "..",
-          "templates",
-          "express",
-          "auth",
-          "userRepository.ts.template",
-        ),
-      );
+      const userRepositoryFile = readFileSync(getAuthTemplatePath("userRepository.ts.template"));
 
       writeFileSync(
         join(
@@ -477,32 +289,14 @@ export const initCommand = async (
         userRepositoryFile,
       );
 
-      const authControllerFile = readFileSync(
-        join(
-          __dirname,
-          "..",
-          "templates",
-          "express",
-          "auth",
-          "authController.ts.template",
-        ),
-      );
+      const authControllerFile = readFileSync(getAuthTemplatePath("authController.ts.template"));
 
       writeFileSync(
         join(cwd(), projectName, "src", "controllers", "authController.ts"),
         authControllerFile,
       );
 
-      const authRouterFile = readFileSync(
-        join(
-          __dirname,
-          "..",
-          "templates",
-          "express",
-          "auth",
-          "authRouter.ts.template",
-        ),
-      );
+      const authRouterFile = readFileSync(getAuthTemplatePath("authRouter.ts.template"));
 
       writeFileSync(
         join(cwd(), projectName, "src", "routes", "authRouter.ts"),
@@ -510,22 +304,15 @@ export const initCommand = async (
       );
 
       const apiRouterPath = join(cwd(), projectName, "src", "routes", "apiRouter.ts");
-      const apiRouterContent = readFileSync(apiRouterPath, "utf-8");
-
       const importLine = `import authRouter from './authRouter'`;
 
-      if (!apiRouterContent.includes(importLine)) {
-        const lines = apiRouterContent.split("\n");
-
-        const exportIndex = lines.findIndex((line) =>
-          line.includes("export default apiRouter"),
-        );
-
-        lines.splice(exportIndex, 0, `apiRouter.use('/auth', authRouter)`);
-
-        lines.splice(0, 0, importLine);
-
-        writeFileSync(apiRouterPath, lines.join("\n"));
+      if (!readFileSync(apiRouterPath, "utf-8").includes(importLine)) {
+        patchFile(apiRouterPath, (lines) => {
+          const exportIndex = lines.findIndex((line) => line.includes("export default apiRouter"));
+          lines.splice(exportIndex, 0, `apiRouter.use('/auth', authRouter)`);
+          lines.splice(0, 0, importLine);
+          return lines;
+        });
       }
     }
   } catch (error) {

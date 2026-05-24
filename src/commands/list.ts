@@ -1,6 +1,8 @@
 import { readdirSync, existsSync } from "fs";
 import { join } from "path";
 import { assertSkafrProject, loadConfig } from "../config";
+import { buildResourceContext } from "../templateEngine";
+import { getResourceFilePaths } from "../utils/helper";
 
 const COL_W = 14;
 const pad = (s: string) => s.padEnd(COL_W);
@@ -34,14 +36,16 @@ export const listCommand = () => {
   console.log(separator);
 
   for (const file of controllerFiles) {
-    const r = file.replace("Controller.ts", "");
+    const resourceFile = file.replace("Controller.ts", "");
+    const { modelPath, controllerPath, repositoryPath, routerPath, validatorPath } =
+      getResourceFilePaths(config, buildResourceContext(resourceFile));
     const row = [
-      r,
-      check(join(config.srcDir, "models", r + "Model.ts")),
-      check(join(config.srcDir, "controllers", r + "Controller.ts")),
-      check(join(config.srcDir, "repositories", r + "Repository.ts")),
-      check(join(config.srcDir, "routes", r + "Router.ts")),
-      check(join(config.srcDir, "validators", r + "Validator.ts")),
+      resourceFile,
+      check(modelPath),
+      check(controllerPath),
+      check(repositoryPath),
+      check(routerPath),
+      check(validatorPath),
     ];
     console.log(row.map(pad).join(""));
   }

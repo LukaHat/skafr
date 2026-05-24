@@ -1,8 +1,8 @@
-import { existsSync, rmSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+import { existsSync, rmSync } from "fs";
 import { confirm } from "@inquirer/prompts";
 import { assertSkafrProject, loadConfig } from "../config";
 import { buildResourceContext } from "../templateEngine";
+import { buildResourceRegistration, getProjectPaths, getResourceFilePaths, patchFile } from "../utils/helper";
 
 export const removeCommand = async (resource: string, options: { force: boolean }) => {
   try {
@@ -10,15 +10,8 @@ export const removeCommand = async (resource: string, options: { force: boolean 
 
     const config = loadConfig();
     const casingVariants = buildResourceContext(resource);
-    const candidatePaths = [
-      join(config.srcDir, "models", casingVariants.resourceFile + "Model.ts"),
-      join(config.srcDir, "controllers", casingVariants.resourceFile + "Controller.ts"),
-      join(config.srcDir, "repositories", casingVariants.resourceFile + "Repository.ts"),
-      join(config.srcDir, "routes", casingVariants.resourceFile + "Router.ts"),
-      join(config.srcDir, "validators", casingVariants.resourceFile + "Validator.ts"),
-      join(config.srcDir, "__tests__", casingVariants.resourceFile + "Controller.test.ts"),
-      join(config.srcDir, "__tests__", casingVariants.resourceFile + "Repository.test.ts"),
-    ];
+
+    const candidatePaths = Object.values(getResourceFilePaths(config, casingVariants));
 
     const filesToDelete = candidatePaths.filter(existsSync);
 
@@ -30,7 +23,7 @@ export const removeCommand = async (resource: string, options: { force: boolean 
     if (!options.force) {
       if (!process.stdin.isTTY)
         throw new Error(
-          `No TTY detected — use --force to skip confirmation in non-interactive mode.`,
+          `No TTY detected — use --force to skip confirmation in non-interactive mode.`
         );
 
       console.log("Files to remove:");
@@ -52,49 +45,40 @@ export const removeCommand = async (resource: string, options: { force: boolean 
       console.log(`Deleted: ${fp}`);
     }
 
-    const apiRouterPath = join(config.srcDir, "routes", "apiRouter.ts");
+    const { apiRouter: apiRouterPath, types: typesPath, container: containerPath } = getProjectPaths(config);
+
     if (existsSync(apiRouterPath)) {
       const importLine = `import ${casingVariants.resourceVar}Router from './${casingVariants.resourceFile}Router'`;
       const useLine = `apiRouter.use('/${casingVariants.resourceRoute}', ${casingVariants.resourceVar}Router)`;
-      const filtered = readFileSync(apiRouterPath, "utf-8")
-        .split("\n")
-        .filter((l) => l !== importLine && l !== useLine)
-        .join("\n");
-      writeFileSync(apiRouterPath, filtered);
+      patchFile(apiRouterPath, (lines) => lines.filter((l) => l !== importLine && l !== useLine));
       console.log(`Updated: ${apiRouterPath}`);
     }
 
-    const typesPath = join(config.srcDir, "di", "TYPES.ts");
+    const {
+      controllerSymbol,
+      repositorySymbol,
+      controllerImport,
+      repositoryImport,
+      controllerBind,
+      repositoryBind,
+    } = buildResourceRegistration(casingVariants);
+
     if (existsSync(typesPath)) {
-      const filtered = readFileSync(typesPath, "utf-8")
-        .split("\n")
-        .filter(
-          (l) =>
-            !l.includes(`${casingVariants.resourceClass}Controller: Symbol.for`) &&
-            !l.includes(`${casingVariants.resourceClass}Repository: Symbol.for`),
-        )
-        .join("\n");
-      writeFileSync(typesPath, filtered);
+      patchFile(typesPath, (lines) =>
+        lines.filter((l) => !l.includes(controllerSymbol) && !l.includes(repositorySymbol))
+      );
     }
 
-    const containerPath = join(config.srcDir, "di", "inversify.config.ts");
     if (existsSync(containerPath)) {
-      const controllerImport = `import { ${casingVariants.resourceClass}Controller } from "../controllers/${casingVariants.resourceFile}Controller"`;
-      const repositoryImport = `import { ${casingVariants.resourceClass}Repository } from "../repositories/${casingVariants.resourceFile}Repository"`;
-      const controllerBind = `container.bind<${casingVariants.resourceClass}Controller>(TYPES.${casingVariants.resourceClass}Controller).to(${casingVariants.resourceClass}Controller)`;
-      const repositoryBind = `container.bind<${casingVariants.resourceClass}Repository>(TYPES.${casingVariants.resourceClass}Repository).to(${casingVariants.resourceClass}Repository)`;
-
-      const filtered = readFileSync(containerPath, "utf-8")
-        .split("\n")
-        .filter(
+      patchFile(containerPath, (lines) =>
+        lines.filter(
           (l) =>
             l !== controllerImport &&
             l !== repositoryImport &&
             l !== controllerBind &&
-            l !== repositoryBind,
+            l !== repositoryBind
         )
-        .join("\n");
-      writeFileSync(containerPath, filtered);
+      );
     }
 
     console.log(`\nResource '${resource}' removed successfully.`);

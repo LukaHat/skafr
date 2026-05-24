@@ -3,8 +3,8 @@ import { assertSkafrProject, loadConfig } from "../config";
 import { buildResourceContext, renderTemplate } from "../templateEngine";
 import { migrationCommand } from "./migration";
 import { SupportedOrms } from "../types";
-import { join } from "path";
 import { select } from "@inquirer/prompts";
+import { buildResourceRegistration, getProjectPaths, getResourceFilePaths, getResourceTemplatePath, patchFile } from "../utils/helper";
 
 type ConflictAction = "overwrite" | "skip" | "abort";
 
@@ -13,13 +13,13 @@ type WrittenEntry = { path: string; wasNew: boolean; originalContent?: string };
 const resolveConflict = async (
   filePath: string,
   options: { force: boolean; skipExisting: boolean },
-  nonInteractive: boolean,
+  nonInteractive: boolean
 ): Promise<ConflictAction> => {
   if (options.force) return "overwrite";
   if (options.skipExisting) return "skip";
   if (nonInteractive)
     throw new Error(
-      `File already exists: ${filePath}. Use --force to overwrite or --skip-existing to skip.`,
+      `File already exists: ${filePath}. Use --force to overwrite or --skip-existing to skip.`
     );
 
   return select<ConflictAction>({
@@ -58,7 +58,7 @@ const trackWrite = (path: string, written: WrittenEntry[], writeFn: () => void) 
 export const addCommand = async (
   resource: string,
   migrationName: string | undefined,
-  options: { force: boolean; crud: boolean; skipExisting: boolean; tests: boolean; dryRun: boolean },
+  options: { force: boolean; crud: boolean; skipExisting: boolean; tests: boolean; dryRun: boolean }
 ) => {
   if (resource === "migration") {
     if (!migrationName)
@@ -76,75 +76,29 @@ export const addCommand = async (
     const casingVariants = buildResourceContext(resource);
     const nonInteractive = !options.force && !options.skipExisting && !process.stdin.isTTY;
 
-    const modelPath = join(config.srcDir, "models", casingVariants.resourceFile + "Model.ts");
-    const controllerPath = join(
-      config.srcDir,
-      "controllers",
-      casingVariants.resourceFile + "Controller.ts",
-    );
-    const repositoryPath = join(
-      config.srcDir,
-      "repositories",
-      casingVariants.resourceFile + "Repository.ts",
-    );
-    const routerPath = join(config.srcDir, "routes", casingVariants.resourceFile + "Router.ts");
-    const validatorPath = join(
-      config.srcDir,
-      "validators",
-      casingVariants.resourceFile + "Validator.ts",
-    );
-    const controllerTestPath = join(
-      config.srcDir,
-      "__tests__",
-      casingVariants.resourceFile + "Controller.test.ts",
-    );
-    const repositoryTestPath = join(
-      config.srcDir,
-      "__tests__",
-      casingVariants.resourceFile + "Repository.test.ts",
-    );
+    const {
+      modelPath,
+      controllerPath,
+      repositoryPath,
+      routerPath,
+      validatorPath,
+      controllerTestPath,
+      repositoryTestPath,
+    } = getResourceFilePaths(config, casingVariants);
 
-    const modelTemplate = readFileSync(
-      join(__dirname, "..", "templates", "express", "resources", "model.ts.template"),
-      "utf-8",
-    );
-    const controllerTemplate = readFileSync(
-      join(
-        __dirname,
-        "..",
-        "templates",
-        "express",
-        "resources",
-        options.crud ? "controller.crud.ts.template" : "controller.ts.template",
-      ),
-      "utf-8",
-    );
     const repositoryTemplateName = options.crud
       ? config.orm === SupportedOrms.sequelize
         ? "repository.crud.sequelize.ts.template"
         : "repository.crud.ts.template"
       : "repository.ts.template";
 
-    const repositoryTemplate = readFileSync(
-      join(__dirname, "..", "templates", "express", "resources", repositoryTemplateName),
-      "utf-8",
-    );
-    const routerTemplate = readFileSync(
-      join(__dirname, "..", "templates", "express", "resources", "routes.ts.template"),
-      "utf-8",
-    );
-    const validatorTemplate = readFileSync(
-      join(__dirname, "..", "templates", "express", "resources", "validator.ts.template"),
-      "utf-8",
-    );
-    const controllerTestTemplate = readFileSync(
-      join(__dirname, "..", "templates", "express", "resources", "controller.test.ts.template"),
-      "utf-8",
-    );
-    const repositoryTestTemplate = readFileSync(
-      join(__dirname, "..", "templates", "express", "resources", "repository.test.ts.template"),
-      "utf-8",
-    );
+    const modelTemplate = readFileSync(getResourceTemplatePath("model.ts.template"), "utf-8");
+    const controllerTemplate = readFileSync(getResourceTemplatePath(options.crud ? "controller.crud.ts.template" : "controller.ts.template"), "utf-8");
+    const repositoryTemplate = readFileSync(getResourceTemplatePath(repositoryTemplateName), "utf-8");
+    const routerTemplate = readFileSync(getResourceTemplatePath("routes.ts.template"), "utf-8");
+    const validatorTemplate = readFileSync(getResourceTemplatePath("validator.ts.template"), "utf-8");
+    const controllerTestTemplate = readFileSync(getResourceTemplatePath("controller.test.ts.template"), "utf-8");
+    const repositoryTestTemplate = readFileSync(getResourceTemplatePath("repository.test.ts.template"), "utf-8");
 
     const files = [
       { path: modelPath, template: modelTemplate },
@@ -165,7 +119,7 @@ export const addCommand = async (
       for (const file of files) {
         console.log(`  ${file.path}`);
       }
-      const apiRouterPath = join(config.srcDir, "routes", "apiRouter.ts");
+      const { apiRouter: apiRouterPath } = getProjectPaths(config);
       const apiRouterContent = existsSync(apiRouterPath)
         ? readFileSync(apiRouterPath, "utf-8")
         : "";
@@ -174,7 +128,7 @@ export const addCommand = async (
         console.log(`\n[dry-run] Would update ${apiRouterPath}:`);
         console.log(`  + ${importLine}`);
         console.log(
-          `  + apiRouter.use('/${casingVariants.resourceRoute}', ${casingVariants.resourceVar}Router)`,
+          `  + apiRouter.use('/${casingVariants.resourceRoute}', ${casingVariants.resourceVar}Router)`
         );
       }
       return;
@@ -200,66 +154,66 @@ export const addCommand = async (
 
     for (const file of filesToWrite) {
       trackWrite(file.path, written, () =>
-        renderTemplate(file.template, casingVariants, file.path),
+        renderTemplate(file.template, casingVariants, file.path)
       );
     }
 
-    const apiRouterPath = join(config.srcDir, "routes", "apiRouter.ts");
+    const { apiRouter: apiRouterPath, types: typesPath, container: containerPath } = getProjectPaths(config);
     const apiRouterContent = readFileSync(apiRouterPath, "utf-8");
     const importLine = `import ${casingVariants.resourceVar}Router from './${casingVariants.resourceFile}Router'`;
 
     if (!apiRouterContent.includes(importLine)) {
       trackWrite(apiRouterPath, written, () => {
-        const lines = apiRouterContent.split("\n");
-        const exportIndex = lines.findIndex((line) => line.includes("export default apiRouter"));
-        lines.splice(
-          exportIndex,
-          0,
-          `apiRouter.use('/${casingVariants.resourceRoute}', ${casingVariants.resourceVar}Router)`,
-        );
-        lines.splice(0, 0, importLine);
-        writeFileSync(apiRouterPath, lines.join("\n"));
+        patchFile(apiRouterPath, (lines) => {
+          const exportIndex = lines.findIndex((line) => line.includes("export default apiRouter"));
+          lines.splice(exportIndex, 0, `apiRouter.use('/${casingVariants.resourceRoute}', ${casingVariants.resourceVar}Router)`);
+          lines.splice(0, 0, importLine);
+          return lines;
+        });
       });
     }
 
-    const typesPath = join(config.srcDir, "di", "TYPES.ts");
+    const {
+      controllerSymbol,
+      repositorySymbol,
+      controllerImport,
+      repositoryImport,
+      controllerBind,
+      repositoryBind,
+    } = buildResourceRegistration(casingVariants);
+
     if (existsSync(typesPath)) {
       const typesContent = readFileSync(typesPath, "utf-8");
-      const controllerSymbol = `  ${casingVariants.resourceClass}Controller: Symbol.for("${casingVariants.resourceClass}Controller"),`;
-      const repositorySymbol = `  ${casingVariants.resourceClass}Repository: Symbol.for("${casingVariants.resourceClass}Repository"),`;
 
       if (!typesContent.includes(`${casingVariants.resourceClass}Controller`)) {
         trackWrite(typesPath, written, () => {
-          const lines = typesContent.split("\n");
-          const closingIndex = lines.reduce<number>(
-            (last, l, i) => (l.trim() === "};" ? i : last),
-            -1,
-          );
-          lines.splice(closingIndex, 0, controllerSymbol, repositorySymbol);
-          writeFileSync(typesPath, lines.join("\n"));
+          patchFile(typesPath, (lines) => {
+            const closingIndex = lines.reduce<number>(
+              (last, l, i) => (l.trim() === "};" ? i : last),
+              -1
+            );
+            lines.splice(closingIndex, 0, controllerSymbol, repositorySymbol);
+            return lines;
+          });
         });
       }
     }
 
-    const containerPath = join(config.srcDir, "di", "inversify.config.ts");
     if (existsSync(containerPath)) {
       const containerContent = readFileSync(containerPath, "utf-8");
-      const controllerImport = `import { ${casingVariants.resourceClass}Controller } from "../controllers/${casingVariants.resourceFile}Controller"`;
-      const repositoryImport = `import { ${casingVariants.resourceClass}Repository } from "../repositories/${casingVariants.resourceFile}Repository"`;
-      const controllerBind = `container.bind<${casingVariants.resourceClass}Controller>(TYPES.${casingVariants.resourceClass}Controller).to(${casingVariants.resourceClass}Controller)`;
-      const repositoryBind = `container.bind<${casingVariants.resourceClass}Repository>(TYPES.${casingVariants.resourceClass}Repository).to(${casingVariants.resourceClass}Repository)`;
 
       if (!containerContent.includes(controllerImport)) {
         trackWrite(containerPath, written, () => {
-          const lines = containerContent.split("\n");
-          const lastImportIndex = lines.reduce<number>(
-            (last, line, i) => (line.startsWith("import ") ? i : last),
-            -1,
-          );
-          lines.splice(lastImportIndex + 1, 0, controllerImport, repositoryImport);
-          const exportIndex = lines.findIndex((l) => l.includes("export default container"));
-          lines.splice(exportIndex, 0, controllerBind, repositoryBind, "");
-          writeFileSync(containerPath, lines.join("\n"));
+          patchFile(containerPath, (lines) => {
+            const lastImportIndex = lines.reduce<number>(
+              (last, line, i) => (line.startsWith("import ") ? i : last),
+              -1
+            );
+            lines.splice(lastImportIndex + 1, 0, controllerImport, repositoryImport);
+            const exportIndex = lines.findIndex((l) => l.includes("export default container"));
+            lines.splice(exportIndex, 0, controllerBind, repositoryBind, "");
+            return lines;
+          });
         });
       }
     }
