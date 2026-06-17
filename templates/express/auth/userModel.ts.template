@@ -1,3 +1,6 @@
+import { Model, DataTypes, UUIDV4 } from "sequelize";
+import { sequelize } from "../db"; // wherever your instance lives
+
 type UserAttributes = {
   id: string
   email: string,
@@ -8,4 +11,33 @@ type CreateUserAttributes = Omit<UserAttributes, "id">
 
 type UpdateUserAttributes = Partial<CreateUserAttributes>
 
-export { UserAttributes, CreateUserAttributes, UpdateUserAttributes }
+class User extends Model<UserAttributes, CreateUserAttributes> {
+  declare id: string;
+  declare email: string;
+  declare passwordHash: string;
+}
+
+User.init({
+  id: {
+    type: DataTypes.UUID,
+    primaryKey: true,
+    defaultValue: UUIDV4
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
+  },
+  passwordHash: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+},
+{
+  sequelize, // import your sequelize connection
+  tableName: "users",
+  timestamps: true
+}
+)
+
+export { User, UserAttributes, CreateUserAttributes, UpdateUserAttributes }

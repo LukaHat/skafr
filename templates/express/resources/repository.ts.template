@@ -3,13 +3,13 @@ import { injectable } from "inversify"
 @injectable()
 export class {{resourceClass}}Repository{
 
-    getAll = async () => {}
+    getAll{{resourceClass}}s = async () => {}
 
-    getById = async () => {}
+    get{{resourceClass}}ById = async () => {}
 
-    create = async () => {}
+    create{{resourceClass}} = async () => {}
 
-    update = async () => {}
+    update{{resourceClass}} = async () => {}
 
-    delete = async () => {}
+    delete{{resourceClass}} = async () => {}
 }

@@ -1,7 +1,7 @@
 import express from "express";
 import diContainer from "../di/inversify.config";
 import AuthController from "../controllers/authController";
-import TYPES from "../di/types";
+import { TYPES } from "../di/TYPES";
 
 const authRouter = express.Router();
 const authController = diContainer.get<AuthController>(TYPES.AuthController);

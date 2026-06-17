@@ -13,6 +13,7 @@ export enum SupportedDBs {
 export type SkafrConfig = {
   stack: SupportedStacks;
   srcDir: string;
+  orm?: SupportedOrms;
 };
 
 export type ResourceContext = {
@@ -22,9 +23,20 @@ export type ResourceContext = {
   resourceRoute: string;
 };
 
+export enum AiFilesMode {
+  all = "all",
+  claude = "claude",
+  copilot = "copilot",
+  none = "none",
+}
+
 export type InitOptions = {
   stack: SupportedStacks;
   auth: boolean;
   orm: SupportedOrms;
   db: SupportedDBs;
+  aiFiles: AiFilesMode;
+  force: boolean;
+  yes: boolean;
+  dryRun: boolean;
 };

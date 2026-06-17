@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import express, { Request, Response } from "express";
 import cors from "cors";
-import apiRouter from './apiRouter'
+import apiRouter from './routes/apiRouter'
 import handleErrors from "./middlewares/errorMiddleware"
 
 const app = express();

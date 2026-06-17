@@ -1,0 +1,30 @@
+import { describe, it, vi, beforeEach } from "vitest"
+import { {{resourceClass}}Repository } from "../repositories/{{resourceFile}}Repository"
+
+const repository = new {{resourceClass}}Repository()
+
+describe("{{resourceClass}}Repository", () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    it("getAll{{resourceClass}}s", async () => {
+        // TODO: implement test
+    })
+
+    it("get{{resourceClass}}ById", async () => {
+        // TODO: implement test
+    })
+
+    it("create{{resourceClass}}", async () => {
+        // TODO: implement test
+    })
+
+    it("update{{resourceClass}}", async () => {
+        // TODO: implement test
+    })
+
+    it("delete{{resourceClass}}", async () => {
+        // TODO: implement test
+    })
+})

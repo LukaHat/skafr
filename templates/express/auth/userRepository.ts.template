@@ -1,0 +1,12 @@
+import { injectable } from "inversify";
+import { User, CreateUserAttributes } from "../../models/userModel";
+
+@injectable()
+export default class UserRepository {
+  createUser = (userCreationData: CreateUserAttributes) =>
+    User.create(userCreationData);
+
+  getUserById = (id: string) => User.findByPk(id);
+
+  getUserByEmail = (email: string) => User.findOne({ where: { email } });
+}
