@@ -1,6 +1,6 @@
 {
   "name": "skafr",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Opinionated scaffolding tool for Express and React Typescript projects",
   "license": "MIT",
   "author": "Luka Hat",
