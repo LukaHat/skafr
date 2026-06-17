@@ -43,15 +43,16 @@ skafr init my-app --no-auth
 
 **Flags:**
 
-| Flag              | Default      | Description                              |
-| ----------------- | ------------ | ---------------------------------------- |
-| `--stack <stack>` | `express`    | Stack to use (`express`)                 |
-| `--orm <orm>`     | `sequelize`  | ORM to use (`sequelize`)                 |
-| `--db <db>`       | `postgres`   | Database (`postgres`)                    |
-| `--no-auth`       | auth enabled | Skip JWT auth scaffolding                |
-| `-f, --force`     | off          | Skip overwrite prompts and reinitialise  |
-| `-y, --yes`       | off          | Auto-confirm all prompts (CI/no-TTY use) |
-| `--dry-run`       | off          | Preview files that would be created      |
+| Flag                   | Default      | Description                                              |
+| ---------------------- | ------------ | -------------------------------------------------------- |
+| `--stack <stack>`      | `express`    | Stack to use (`express`)                                 |
+| `--orm <orm>`          | `sequelize`  | ORM to use (`sequelize`)                                 |
+| `--db <db>`            | `postgres`   | Database (`postgres`)                                    |
+| `--no-auth`            | auth enabled | Skip JWT auth scaffolding                                |
+| `--ai-files <mode>`    | `all`        | AI context files: `all`, `claude`, `copilot`, or `none` |
+| `-f, --force`          | off          | Skip overwrite prompts and reinitialise                  |
+| `-y, --yes`            | off          | Auto-confirm all prompts (CI/no-TTY use)                 |
+| `--dry-run`            | off          | Preview files that would be created                      |
 
 **Generated structure:**
 
@@ -63,6 +64,8 @@ my-app/
 │   ├── models/
 │   ├── middlewares/
 │   ├── repositories/
+│   ├── validators/
+│   ├── __tests__/
 │   ├── utils/
 │   │   ├── errors.ts
 │   │   ├── helpers.ts
@@ -72,10 +75,10 @@ my-app/
 │   ├── di/
 │   │   ├── TYPES.ts
 │   │   └── inversify.config.ts
-│   ├── apiRouter.ts
 │   ├── app.ts
 │   ├── config.ts
 │   └── server.ts
+├── src/routes/apiRouter.ts
 ├── AGENTS.md
 ├── CLAUDE.md -> AGENTS.md
 ├── .env.example
@@ -99,13 +102,20 @@ src/
 
 ### `skafr add <resource>`
 
-Generates a typed resource slice — model, controller, repository, and router — and auto-registers the route in `apiRouter.ts`.
+Generates a typed resource slice — model, controller, repository, router, and validator — and auto-registers the route in `apiRouter.ts` and DI container.
 
 ```bash
 skafr add user
 skafr add post --crud
 skafr add comment --force
 skafr add migration create-users-table
+```
+
+Use `skafr add migration <name>` to generate a Sequelize-CLI migration file:
+
+```bash
+skafr add migration create-users-table
+# → migrations/20260617120000-create-users-table.js
 ```
 
 **Flags:**
@@ -132,12 +142,7 @@ src/
     └── userRepository.test.ts
 ```
 
-`apiRouter.ts` is automatically updated:
-
-```typescript
-import userRouter from "./routes/userRouter";
-apiRouter.use("/users", userRouter);
-```
+`apiRouter.ts`, `di/TYPES.ts`, and `di/inversify.config.ts` are automatically updated.
 
 ---
 
@@ -155,6 +160,43 @@ skafr remove post --force
 | Flag          | Default | Description                    |
 | ------------- | ------- | ------------------------------ |
 | `-f, --force` | off     | Skip confirmation prompt       |
+
+---
+
+### `skafr list`
+
+Lists all generated resources and their file status in a columnar table.
+
+```bash
+skafr list
+```
+
+```
+RESOURCE      MODEL         CONTROLLER    REPOSITORY    ROUTER        VALIDATOR
+────────────────────────────────────────────────────────────────────────────────────
+user          yes           yes           yes           yes           yes
+post          yes           yes           -             yes           yes
+```
+
+---
+
+### `skafr config`
+
+Interactive setup for `.skafrc`. Reads existing values as defaults, lets you update stack, ORM, database, auth, and source directory.
+
+```bash
+skafr config
+```
+
+---
+
+### `skafr uninstall`
+
+Removes `.skafrc` from the current project and prints instructions to remove the global CLI.
+
+```bash
+skafr uninstall
+```
 
 ---
 
