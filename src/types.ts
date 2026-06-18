@@ -4,10 +4,12 @@ export enum SupportedStacks {
 
 export enum SupportedOrms {
   sequelize = "sequelize",
+  mongoose = "mongoose",
 }
 
 export enum SupportedDBs {
   postgres = "postgres",
+  mongodb = "mongodb",
 }
 
 export type SkafrConfig = {

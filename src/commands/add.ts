@@ -89,10 +89,15 @@ export const addCommand = async (
     const repositoryTemplateName = options.crud
       ? config.orm === SupportedOrms.sequelize
         ? "repository.crud.sequelize.ts.template"
+        : config.orm === SupportedOrms.mongoose
+        ? "repository.crud.mongoose.ts.template"
         : "repository.crud.ts.template"
       : "repository.ts.template";
 
-    const modelTemplate = readFileSync(getResourceTemplatePath("model.ts.template"), "utf-8");
+    const modelTemplateName = config.orm === SupportedOrms.mongoose
+      ? "model.mongoose.ts.template"
+      : "model.ts.template";
+    const modelTemplate = readFileSync(getResourceTemplatePath(modelTemplateName), "utf-8");
     const controllerTemplate = readFileSync(getResourceTemplatePath(options.crud ? "controller.crud.ts.template" : "controller.ts.template"), "utf-8");
     const repositoryTemplate = readFileSync(getResourceTemplatePath(repositoryTemplateName), "utf-8");
     const routerTemplate = readFileSync(getResourceTemplatePath("routes.ts.template"), "utf-8");

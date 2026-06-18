@@ -46,13 +46,15 @@ skafr init my-app --no-auth
 | Flag                   | Default      | Description                                              |
 | ---------------------- | ------------ | -------------------------------------------------------- |
 | `--stack <stack>`      | `express`    | Stack to use (`express`)                                 |
-| `--orm <orm>`          | `sequelize`  | ORM to use (`sequelize`)                                 |
-| `--db <db>`            | `postgres`   | Database (`postgres`)                                    |
+| `--orm <orm>`          | `sequelize`  | ORM to use (`sequelize`, `mongoose`)                     |
+| `--db <db>`            | `postgres`   | Database (`postgres`, `mongodb`)                         |
 | `--no-auth`            | auth enabled | Skip JWT auth scaffolding                                |
 | `--ai-files <mode>`    | `all`        | AI context files: `all`, `claude`, `copilot`, or `none` |
 | `-f, --force`          | off          | Skip overwrite prompts and reinitialise                  |
 | `-y, --yes`            | off          | Auto-confirm all prompts (CI/no-TTY use)                 |
 | `--dry-run`            | off          | Preview files that would be created                      |
+
+> **Mongoose projects:** When `--orm mongoose --db mongodb` is used, `src/db.ts` exports `connectDB` / `disconnectDB` helpers instead of a Sequelize instance. No `pg` or `pg-hstore` deps are installed.
 
 **Generated structure:**
 
@@ -111,7 +113,7 @@ skafr add comment --force
 skafr add migration create-users-table
 ```
 
-Use `skafr add migration <name>` to generate a Sequelize-CLI migration file:
+Use `skafr add migration <name>` to generate a Sequelize-CLI migration file. Not supported for Mongoose projects — throws an error if `.skafrc` has `orm: "mongoose"`.
 
 ```bash
 skafr add migration create-users-table
