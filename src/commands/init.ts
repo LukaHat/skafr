@@ -46,7 +46,7 @@ export const initCommand = async (
         "src/constants/appConstants.ts", "src/constants/appStrings.ts",
         "src/utils/errors.ts", "src/utils/helpers.ts", "src/utils/successResponses.ts",
         "src/middlewares/errorMiddleware.ts", "src/middlewares/validateBody.ts",
-        ...(options.orm === SupportedOrms.sequelize ? ["src/db.ts"] : []),
+        ...(options.orm === SupportedOrms.sequelize || options.orm === SupportedOrms.mongoose ? ["src/db.ts"] : []),
       ];
       if (options.auth) {
         previewFiles.push(
@@ -136,6 +136,9 @@ export const initCommand = async (
 
     if (options.orm === SupportedOrms.sequelize) {
       const dbFile = readFileSync(getInitTemplatePath("db.ts.template"), "utf-8");
+      writeFileSync(join(cwd(), projectName, "src", "db.ts"), dbFile);
+    } else if (options.orm === SupportedOrms.mongoose) {
+      const dbFile = readFileSync(getInitTemplatePath("db.mongoose.ts.template"), "utf-8");
       writeFileSync(join(cwd(), projectName, "src", "db.ts"), dbFile);
     }
 
@@ -261,7 +264,10 @@ export const initCommand = async (
 
       writeFileSync(join(cwd(), projectName, "src", "types.ts"), typesFile);
 
-      const userModelFile = readFileSync(getAuthTemplatePath("userModel.ts.template"));
+      const userModelTemplateName = options.orm === SupportedOrms.mongoose
+        ? "userModel.mongoose.ts.template"
+        : "userModel.ts.template";
+      const userModelFile = readFileSync(getAuthTemplatePath(userModelTemplateName));
 
       writeFileSync(
         join(cwd(), projectName, "src", "models", "userModel.ts"),
@@ -275,7 +281,10 @@ export const initCommand = async (
         authMiddlewareFile,
       );
 
-      const userRepositoryFile = readFileSync(getAuthTemplatePath("userRepository.ts.template"));
+      const userRepositoryTemplateName = options.orm === SupportedOrms.mongoose
+        ? "userRepository.mongoose.ts.template"
+        : "userRepository.ts.template";
+      const userRepositoryFile = readFileSync(getAuthTemplatePath(userRepositoryTemplateName));
 
       writeFileSync(
         join(

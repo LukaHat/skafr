@@ -1,0 +1,17 @@
+import { Schema, model, Document } from "mongoose";
+
+export interface I{{resourceClass}} extends Document {
+  // TODO: define fields
+}
+
+const {{resourceClass}}Schema = new Schema<I{{resourceClass}}>(
+  {
+    // TODO: define schema fields
+  },
+  { timestamps: true }
+);
+
+export const {{resourceClass}} = model<I{{resourceClass}}>("{{resourceClass}}", {{resourceClass}}Schema);
+
+export type Create{{resourceClass}}Attributes = Omit<I{{resourceClass}}, keyof Document>;
+export type Update{{resourceClass}}Attributes = Partial<Create{{resourceClass}}Attributes>;

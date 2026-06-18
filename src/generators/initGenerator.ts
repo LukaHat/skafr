@@ -1,9 +1,6 @@
 import { InitOptions, SupportedDBs, SupportedOrms } from "../types";
 
-export const generatePackageJSON = (
-  projectName: string,
-  options: InitOptions,
-) => {
+export const generatePackageJSON = (projectName: string, options: InitOptions) => {
   return {
     name: projectName,
     version: "1.0.0",
@@ -34,6 +31,10 @@ export const generatePackageJSON = (
 
       ...(options.orm === SupportedOrms.sequelize && {
         sequelize: "^6.37.7",
+      }),
+
+      ...(options.orm === SupportedOrms.mongoose && {
+        mongoose: "^9.7.1",
       }),
     },
     devDependencies: {
