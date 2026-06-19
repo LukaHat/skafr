@@ -167,10 +167,11 @@ skafr remove post --force
 
 ### `skafr list`
 
-Lists all generated resources and their file status in a columnar table.
+Lists all generated resources and their file status in a columnar table. Pass `--json` for machine-readable output.
 
 ```bash
 skafr list
+skafr list --json
 ```
 
 ```
@@ -178,6 +179,23 @@ RESOURCE      MODEL         CONTROLLER    REPOSITORY    ROUTER        VALIDATOR
 ────────────────────────────────────────────────────────────────────────────────────
 user          yes           yes           yes           yes           yes
 post          yes           yes           -             yes           yes
+```
+
+```json
+{
+  "resources": [
+    {
+      "name": "user",
+      "files": {
+        "model":      { "path": "src/models/userModel.ts",            "exists": true },
+        "controller": { "path": "src/controllers/userController.ts",  "exists": true },
+        "repository": { "path": "src/repositories/userRepository.ts", "exists": true },
+        "router":     { "path": "src/routes/userRouter.ts",           "exists": true },
+        "validator":  { "path": "src/validators/userValidator.ts",    "exists": true }
+      }
+    }
+  ]
+}
 ```
 
 ---
