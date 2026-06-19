@@ -77,9 +77,10 @@ program
 
 program
   .command("list")
+  .option("--json", "output as JSON", false)
   .description("List all generated resources and their file paths")
-  .action(() => {
-    listCommand();
+  .action((options) => {
+    listCommand({ json: options.json });
   });
 
 program
