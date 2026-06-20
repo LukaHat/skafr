@@ -1,0 +1,27 @@
+import { injectable } from "inversify";
+import { prisma } from "../db";
+import type { {{resourceClass}}, Create{{resourceClass}}Attributes, Update{{resourceClass}}Attributes } from '../models/{{resourceFile}}Model';
+
+@injectable()
+export class {{resourceClass}}Repository {
+
+    getAll{{resourceClass}}s = async (): Promise<{{resourceClass}}[]> => {
+        return await prisma.{{resourceVar}}.findMany();
+    }
+
+    get{{resourceClass}}ById = async (id: string): Promise<{{resourceClass}} | null> => {
+        return await prisma.{{resourceVar}}.findUnique({ where: { id } });
+    }
+
+    create{{resourceClass}} = async (data: Create{{resourceClass}}Attributes): Promise<{{resourceClass}}> => {
+        return await prisma.{{resourceVar}}.create({ data });
+    }
+
+    update{{resourceClass}} = async (id: string, data: Update{{resourceClass}}Attributes): Promise<{{resourceClass}} | null> => {
+        return await prisma.{{resourceVar}}.update({ where: { id }, data });
+    }
+
+    delete{{resourceClass}} = async (id: string): Promise<void> => {
+        await prisma.{{resourceVar}}.delete({ where: { id } });
+    }
+}

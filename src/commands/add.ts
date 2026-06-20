@@ -91,11 +91,15 @@ export const addCommand = async (
         ? "repository.crud.sequelize.ts.template"
         : config.orm === SupportedOrms.mongoose
         ? "repository.crud.mongoose.ts.template"
+        : config.orm === SupportedOrms.prisma
+        ? "repository.crud.prisma.ts.template"
         : "repository.crud.ts.template"
       : "repository.ts.template";
 
     const modelTemplateName = config.orm === SupportedOrms.mongoose
       ? "model.mongoose.ts.template"
+      : config.orm === SupportedOrms.prisma
+      ? "model.prisma.ts.template"
       : "model.ts.template";
     const modelTemplate = readFileSync(getResourceTemplatePath(modelTemplateName), "utf-8");
     const controllerTemplate = readFileSync(getResourceTemplatePath(options.crud ? "controller.crud.ts.template" : "controller.ts.template"), "utf-8");

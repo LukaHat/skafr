@@ -1,0 +1,6 @@
+import type { {{resourceClass}} } from "@prisma/client";
+
+// TODO: add {{resourceClass}} model to prisma/schema.prisma, then run `npx prisma generate`
+export type { {{resourceClass}} };
+export type Create{{resourceClass}}Attributes = Omit<{{resourceClass}}, "id" | "createdAt" | "updatedAt">;
+export type Update{{resourceClass}}Attributes = Partial<Create{{resourceClass}}Attributes>;
