@@ -18,10 +18,19 @@ export class {{resourceClass}}Repository {
     }
 
     update{{resourceClass}} = async (id: string, data: Update{{resourceClass}}Attributes): Promise<{{resourceClass}} | null> => {
-        return await prisma.{{resourceVar}}.update({ where: { id }, data });
+        try {
+            return await prisma.{{resourceVar}}.update({ where: { id }, data });
+        } catch (e: any) {
+            if (e?.code === "P2025") return null;
+            throw e;
+        }
     }
 
     delete{{resourceClass}} = async (id: string): Promise<void> => {
-        await prisma.{{resourceVar}}.delete({ where: { id } });
+        try {
+            await prisma.{{resourceVar}}.delete({ where: { id } });
+        } catch (e: any) {
+            if (e?.code !== "P2025") throw e;
+        }
     }
 }

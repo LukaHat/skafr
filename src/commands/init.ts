@@ -1,4 +1,4 @@
-import { AiFilesMode, InitOptions, SupportedOrms } from "../types";
+import { AiFilesMode, InitOptions, SupportedDBs, SupportedOrms } from "../types";
 import {
   mkdirSync,
   existsSync,
@@ -23,6 +23,10 @@ export const initCommand = async (
       throw new Error(
         "Invalid project name. Use only letters, numbers, hyphens, and underscores.",
       );
+
+    if (options.orm === SupportedOrms.prisma && options.db === SupportedDBs.mongodb) {
+      throw new Error("Prisma with MongoDB requires a separate setup. Use --orm mongoose --db mongodb instead.");
+    }
 
     const nonInteractive = options.yes || options.force || !process.stdin.isTTY;
     if (nonInteractive && !process.stdin.isTTY && !options.yes && !options.force) {
