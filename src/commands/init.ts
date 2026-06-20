@@ -1,4 +1,4 @@
-import { AiFilesMode, InitOptions, SupportedOrms } from "../types";
+import { AiFilesMode, InitOptions, SupportedDBs, SupportedOrms } from "../types";
 import {
   mkdirSync,
   existsSync,
@@ -24,6 +24,10 @@ export const initCommand = async (
         "Invalid project name. Use only letters, numbers, hyphens, and underscores.",
       );
 
+    if (options.orm === SupportedOrms.prisma && options.db === SupportedDBs.mongodb) {
+      throw new Error("Prisma with MongoDB requires a separate setup. Use --orm mongoose --db mongodb instead.");
+    }
+
     const nonInteractive = options.yes || options.force || !process.stdin.isTTY;
     if (nonInteractive && !process.stdin.isTTY && !options.yes && !options.force) {
       console.warn("Warning: no TTY detected — running in non-interactive mode.");
@@ -46,7 +50,8 @@ export const initCommand = async (
         "src/constants/appConstants.ts", "src/constants/appStrings.ts",
         "src/utils/errors.ts", "src/utils/helpers.ts", "src/utils/successResponses.ts",
         "src/middlewares/errorMiddleware.ts", "src/middlewares/validateBody.ts",
-        ...(options.orm === SupportedOrms.sequelize || options.orm === SupportedOrms.mongoose ? ["src/db.ts"] : []),
+        ...(options.orm === SupportedOrms.sequelize || options.orm === SupportedOrms.mongoose || options.orm === SupportedOrms.prisma ? ["src/db.ts"] : []),
+        ...(options.orm === SupportedOrms.prisma ? ["prisma/schema.prisma"] : []),
       ];
       if (options.auth) {
         previewFiles.push(
@@ -140,6 +145,13 @@ export const initCommand = async (
     } else if (options.orm === SupportedOrms.mongoose) {
       const dbFile = readFileSync(getInitTemplatePath("db.mongoose.ts.template"), "utf-8");
       writeFileSync(join(cwd(), projectName, "src", "db.ts"), dbFile);
+    } else if (options.orm === SupportedOrms.prisma) {
+      const dbFile = readFileSync(getInitTemplatePath("db.prisma.ts.template"), "utf-8");
+      writeFileSync(join(cwd(), projectName, "src", "db.ts"), dbFile);
+      const schemaTemplateName = options.auth ? "schema.auth.prisma.template" : "schema.prisma.template";
+      const schemaFile = readFileSync(getInitTemplatePath("prisma", schemaTemplateName), "utf-8");
+      mkdirSync(join(cwd(), projectName, "prisma"), { recursive: true });
+      writeFileSync(join(cwd(), projectName, "prisma", "schema.prisma"), schemaFile);
     }
 
     const envTemplate = options.auth
@@ -266,6 +278,8 @@ export const initCommand = async (
 
       const userModelTemplateName = options.orm === SupportedOrms.mongoose
         ? "userModel.mongoose.ts.template"
+        : options.orm === SupportedOrms.prisma
+        ? "userModel.prisma.ts.template"
         : "userModel.ts.template";
       const userModelFile = readFileSync(getAuthTemplatePath(userModelTemplateName));
 
@@ -283,6 +297,8 @@ export const initCommand = async (
 
       const userRepositoryTemplateName = options.orm === SupportedOrms.mongoose
         ? "userRepository.mongoose.ts.template"
+        : options.orm === SupportedOrms.prisma
+        ? "userRepository.prisma.ts.template"
         : "userRepository.ts.template";
       const userRepositoryFile = readFileSync(getAuthTemplatePath(userRepositoryTemplateName));
 

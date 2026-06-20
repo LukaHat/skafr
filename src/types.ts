@@ -5,6 +5,7 @@ export enum SupportedStacks {
 export enum SupportedOrms {
   sequelize = "sequelize",
   mongoose = "mongoose",
+  prisma = "prisma",
 }
 
 export enum SupportedDBs {

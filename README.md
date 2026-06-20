@@ -46,7 +46,7 @@ skafr init my-app --no-auth
 | Flag                   | Default      | Description                                              |
 | ---------------------- | ------------ | -------------------------------------------------------- |
 | `--stack <stack>`      | `express`    | Stack to use (`express`)                                 |
-| `--orm <orm>`          | `sequelize`  | ORM to use (`sequelize`, `mongoose`)                     |
+| `--orm <orm>`          | `sequelize`  | ORM to use (`sequelize`, `mongoose`, `prisma`)           |
 | `--db <db>`            | `postgres`   | Database (`postgres`, `mongodb`)                         |
 | `--no-auth`            | auth enabled | Skip JWT auth scaffolding                                |
 | `--ai-files <mode>`    | `all`        | AI context files: `all`, `claude`, `copilot`, or `none` |
@@ -55,6 +55,8 @@ skafr init my-app --no-auth
 | `--dry-run`            | off          | Preview files that would be created                      |
 
 > **Mongoose projects:** When `--orm mongoose --db mongodb` is used, `src/db.ts` exports `connectDB` / `disconnectDB` helpers instead of a Sequelize instance. No `pg` or `pg-hstore` deps are installed.
+
+> **Prisma projects:** When `--orm prisma` is used, `src/db.ts` exports a `PrismaClient` instance and `prisma/schema.prisma` is generated with your datasource and (if auth enabled) a `User` model. Prisma scripts are added to `package.json`: `db:generate`, `db:migrate`, `db:push`. Run `npx prisma migrate dev` to apply migrations.
 
 **Generated structure:**
 
@@ -113,7 +115,7 @@ skafr add comment --force
 skafr add migration create-users-table
 ```
 
-Use `skafr add migration <name>` to generate a Sequelize-CLI migration file. Not supported for Mongoose projects — throws an error if `.skafrc` has `orm: "mongoose"`.
+Use `skafr add migration <name>` to generate a Sequelize-CLI migration file. Not supported for Mongoose or Prisma projects — throws an error directing you to the appropriate migration tool (`migrate-mongo` or `prisma migrate dev`).
 
 ```bash
 skafr add migration create-users-table
