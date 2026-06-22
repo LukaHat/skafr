@@ -14,6 +14,7 @@ import { removeCommand } from "./commands/remove";
 import { listCommand } from "./commands/list";
 import { configCommand } from "./commands/config";
 import { uninstallCommand } from "./commands/uninstall";
+import { doctorCommand } from "./commands/doctor";
 
 program
   .name("skafr")
@@ -81,6 +82,14 @@ program
   .description("List all generated resources and their file paths")
   .action((options) => {
     listCommand({ json: options.json });
+  });
+
+program
+  .command("doctor")
+  .option("--json", "output as JSON", false)
+  .description("Validate project setup and dependencies")
+  .action((options) => {
+    doctorCommand({ json: options.json });
   });
 
 program
