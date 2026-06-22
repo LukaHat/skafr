@@ -17,6 +17,8 @@ export type SkafrConfig = {
   stack: SupportedStacks;
   srcDir: string;
   orm?: SupportedOrms;
+  db?: SupportedDBs;
+  auth?: boolean;
 };
 
 export type ResourceContext = {

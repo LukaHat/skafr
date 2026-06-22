@@ -35,11 +35,13 @@ export const doctorCommand = (options: { json: boolean }) => {
   }
 
   const orm = config.orm;
-  const db = (config as Record<string, unknown>).db as SupportedDBs | undefined;
+  const db = config.db;
 
-  if (orm === SupportedOrms.prisma && db === SupportedDBs.mongodb) {
+  if (!orm) {
+    checks.push(warn("orm_db_combo", "orm not set in .skafrc — run `skafr config` to configure"));
+  } else if (orm === SupportedOrms.prisma && db === SupportedDBs.mongodb) {
     checks.push(fail("orm_db_combo", "prisma + mongodb is not supported — use --orm mongoose --db mongodb"));
-  } else if (orm) {
+  } else {
     checks.push(pass("orm_db_combo", `${orm} + ${db ?? "postgres"} is valid`));
   }
 
@@ -89,8 +91,7 @@ export const doctorCommand = (options: { json: boolean }) => {
       checks.push(pass("di_files", "DI files present"));
     }
 
-    const auth = (config as Record<string, unknown>).auth as boolean | undefined;
-    if (auth) {
+    if (config.auth) {
       const authFiles = [
         join(srcDir, "models", "userModel.ts"),
         join(srcDir, "middlewares", "authMiddleware.ts"),
