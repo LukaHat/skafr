@@ -202,6 +202,41 @@ post          yes           yes           -             yes           yes
 
 ---
 
+### `skafr doctor`
+
+Validates project setup health — checks `.skafrc`, ORM/DB combination, installed dependencies, source directory structure, DI files, auth files, and ORM-specific requirements (e.g. `prisma/schema.prisma`).
+
+```bash
+skafr doctor
+skafr doctor --json
+```
+
+```
+skafr doctor
+
+  ✓ .skafrc found and valid
+  ✓ prisma + postgres is valid
+  ✓ node_modules found
+  ✓ @prisma/client installed
+  ✓ src/ exists
+  ✓ All core directories present
+  ✓ DI files present
+  ✓ Auth files present
+  ⚠ prisma/schema.prisma not found — run `npx prisma migrate dev`
+
+1 warning
+```
+
+Exits with code `1` if any check fails (useful in CI). Warnings do not affect exit code.
+
+**Flags:**
+
+| Flag     | Default | Description           |
+| -------- | ------- | --------------------- |
+| `--json` | off     | Output as JSON        |
+
+---
+
 ### `skafr config`
 
 Interactive setup for `.skafrc`. Reads existing values as defaults, lets you update stack, ORM, database, auth, and source directory.
