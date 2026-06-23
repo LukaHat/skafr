@@ -11,6 +11,7 @@ export enum SupportedOrms {
 export enum SupportedDBs {
   postgres = "postgres",
   mongodb = "mongodb",
+  mysql = "mysql",
 }
 
 export type SkafrConfig = {

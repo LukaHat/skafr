@@ -39,10 +39,20 @@ export const doctorCommand = (options: { json: boolean }) => {
 
   if (!orm) {
     checks.push(warn("orm_db_combo", "orm not set in .skafrc — run `skafr config` to configure"));
-  } else if (orm === SupportedOrms.prisma && db === SupportedDBs.mongodb) {
-    checks.push(fail("orm_db_combo", "prisma + mongodb is not supported — use --orm mongoose --db mongodb"));
   } else {
-    checks.push(pass("orm_db_combo", `${orm} + ${db ?? "postgres"} is valid`));
+    const invalidCombos: Array<[SupportedOrms, SupportedDBs, string]> = [
+      [SupportedOrms.prisma,    SupportedDBs.mongodb,  "use --orm mongoose --db mongodb"],
+      [SupportedOrms.sequelize, SupportedDBs.mongodb,  "use --orm mongoose --db mongodb"],
+      [SupportedOrms.mongoose,  SupportedDBs.postgres, "use --orm sequelize or --orm prisma"],
+      [SupportedOrms.mongoose,  SupportedDBs.mysql,    "use --orm sequelize or --orm prisma"],
+    ];
+    const effectiveDb = db ?? SupportedDBs.postgres;
+    const invalid = invalidCombos.find(([o, d]) => o === orm && d === effectiveDb);
+    if (invalid) {
+      checks.push(fail("orm_db_combo", `${orm} + ${effectiveDb} is not supported — ${invalid[2]}`));
+    } else {
+      checks.push(pass("orm_db_combo", `${orm} + ${effectiveDb} is valid`));
+    }
   }
 
   const nodeModulesPath = join(process.cwd(), "node_modules");
