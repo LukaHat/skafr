@@ -158,8 +158,12 @@ export const initCommand = async (
       const dbFile = readFileSync(getInitTemplatePath("db.prisma.ts.template"), "utf-8");
       writeFileSync(join(cwd(), projectName, "src", "db.ts"), dbFile);
       const schemaTemplateName = options.auth ? "schema.auth.prisma.template" : "schema.prisma.template";
-      const schemaFile = readFileSync(getInitTemplatePath("prisma", schemaTemplateName), "utf-8")
-        .replace('provider = "postgresql"', options.db === SupportedDBs.mysql ? 'provider = "mysql"' : 'provider = "postgresql"');
+      const rawSchema = readFileSync(getInitTemplatePath("prisma", schemaTemplateName), "utf-8");
+      const targetProvider = options.db === SupportedDBs.mysql ? "mysql" : "postgresql";
+      const schemaFile = rawSchema.replace(/provider\s*=\s*"postgresql"/, `provider = "${targetProvider}"`);
+      if (targetProvider === "mysql" && schemaFile === rawSchema) {
+        throw new Error("Failed to set Prisma provider to mysql — schema template may have changed.");
+      }
       mkdirSync(join(cwd(), projectName, "prisma"), { recursive: true });
       writeFileSync(join(cwd(), projectName, "prisma", "schema.prisma"), schemaFile);
     }

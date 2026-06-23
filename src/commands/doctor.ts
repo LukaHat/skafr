@@ -46,11 +46,12 @@ export const doctorCommand = (options: { json: boolean }) => {
       [SupportedOrms.mongoose,  SupportedDBs.postgres, "use --orm sequelize or --orm prisma"],
       [SupportedOrms.mongoose,  SupportedDBs.mysql,    "use --orm sequelize or --orm prisma"],
     ];
-    const invalid = db ? invalidCombos.find(([o, d]) => o === orm && d === db) : undefined;
+    const effectiveDb = db ?? SupportedDBs.postgres;
+    const invalid = invalidCombos.find(([o, d]) => o === orm && d === effectiveDb);
     if (invalid) {
-      checks.push(fail("orm_db_combo", `${orm} + ${db} is not supported — ${invalid[2]}`));
+      checks.push(fail("orm_db_combo", `${orm} + ${effectiveDb} is not supported — ${invalid[2]}`));
     } else {
-      checks.push(pass("orm_db_combo", `${orm} + ${db ?? "postgres"} is valid`));
+      checks.push(pass("orm_db_combo", `${orm} + ${effectiveDb} is valid`));
     }
   }
 
