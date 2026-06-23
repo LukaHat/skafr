@@ -39,6 +39,10 @@ export const generatePackageJSON = (projectName: string, options: InitOptions) =
         sequelize: "^6.37.7",
       }),
 
+      ...(options.orm === SupportedOrms.sequelize && options.db === SupportedDBs.mysql && {
+        mysql2: "^3.0.0",
+      }),
+
       ...(options.orm === SupportedOrms.mongoose && {
         mongoose: "^9.7.1",
       }),

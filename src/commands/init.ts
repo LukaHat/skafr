@@ -27,6 +27,12 @@ export const initCommand = async (
     if (options.orm === SupportedOrms.prisma && options.db === SupportedDBs.mongodb) {
       throw new Error("Prisma with MongoDB requires a separate setup. Use --orm mongoose --db mongodb instead.");
     }
+    if (options.orm === SupportedOrms.sequelize && options.db === SupportedDBs.mongodb) {
+      throw new Error("Sequelize does not support MongoDB. Use --orm mongoose --db mongodb.");
+    }
+    if (options.orm === SupportedOrms.mongoose && options.db !== SupportedDBs.mongodb) {
+      throw new Error("Mongoose only supports MongoDB. Use --db mongodb or switch to a different ORM.");
+    }
 
     const nonInteractive = options.yes || options.force || !process.stdin.isTTY;
     if (nonInteractive && !process.stdin.isTTY && !options.yes && !options.force) {
@@ -140,7 +146,10 @@ export const initCommand = async (
     writeFileSync(join(cwd(), projectName, "src", "config.ts"), config);
 
     if (options.orm === SupportedOrms.sequelize) {
-      const dbFile = readFileSync(getInitTemplatePath("db.ts.template"), "utf-8");
+      const dbTemplateName = options.db === SupportedDBs.mysql
+        ? "db.sequelize.mysql.ts.template"
+        : "db.ts.template";
+      const dbFile = readFileSync(getInitTemplatePath(dbTemplateName), "utf-8");
       writeFileSync(join(cwd(), projectName, "src", "db.ts"), dbFile);
     } else if (options.orm === SupportedOrms.mongoose) {
       const dbFile = readFileSync(getInitTemplatePath("db.mongoose.ts.template"), "utf-8");
@@ -149,7 +158,8 @@ export const initCommand = async (
       const dbFile = readFileSync(getInitTemplatePath("db.prisma.ts.template"), "utf-8");
       writeFileSync(join(cwd(), projectName, "src", "db.ts"), dbFile);
       const schemaTemplateName = options.auth ? "schema.auth.prisma.template" : "schema.prisma.template";
-      const schemaFile = readFileSync(getInitTemplatePath("prisma", schemaTemplateName), "utf-8");
+      const schemaFile = readFileSync(getInitTemplatePath("prisma", schemaTemplateName), "utf-8")
+        .replace('provider = "postgresql"', options.db === SupportedDBs.mysql ? 'provider = "mysql"' : 'provider = "postgresql"');
       mkdirSync(join(cwd(), projectName, "prisma"), { recursive: true });
       writeFileSync(join(cwd(), projectName, "prisma", "schema.prisma"), schemaFile);
     }

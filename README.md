@@ -47,7 +47,7 @@ skafr init my-app --no-auth
 | ---------------------- | ------------ | -------------------------------------------------------- |
 | `--stack <stack>`      | `express`    | Stack to use (`express`)                                 |
 | `--orm <orm>`          | `sequelize`  | ORM to use (`sequelize`, `mongoose`, `prisma`)           |
-| `--db <db>`            | `postgres`   | Database (`postgres`, `mongodb`)                         |
+| `--db <db>`            | `postgres`   | Database (`postgres`, `mongodb`, `mysql`)                 |
 | `--no-auth`            | auth enabled | Skip JWT auth scaffolding                                |
 | `--ai-files <mode>`    | `all`        | AI context files: `all`, `claude`, `copilot`, or `none` |
 | `-f, --force`          | off          | Skip overwrite prompts and reinitialise                  |
@@ -57,6 +57,8 @@ skafr init my-app --no-auth
 > **Mongoose projects:** When `--orm mongoose --db mongodb` is used, `src/db.ts` exports `connectDB` / `disconnectDB` helpers instead of a Sequelize instance. No `pg` or `pg-hstore` deps are installed.
 
 > **Prisma projects:** When `--orm prisma` is used, `src/db.ts` exports a `PrismaClient` instance and `prisma/schema.prisma` is generated with your datasource and (if auth enabled) a `User` model. Prisma scripts are added to `package.json`: `db:generate`, `db:migrate`, `db:push`. Run `npx prisma migrate dev` to apply migrations.
+
+> **MySQL:** Use `--db mysql` with `--orm sequelize` or `--orm prisma`. Sequelize projects automatically include `mysql2`. Mongoose only supports MongoDB — use `--db mongodb` with `--orm mongoose`.
 
 **Generated structure:**
 
