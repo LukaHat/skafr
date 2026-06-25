@@ -53,6 +53,7 @@ skafr init my-app --no-auth
 | `-f, --force`          | off          | Skip overwrite prompts and reinitialise                  |
 | `-y, --yes`            | off          | Auto-confirm all prompts (CI/no-TTY use)                 |
 | `--dry-run`            | off          | Preview files that would be created                      |
+| `--no-docker`          | docker on    | Skip Dockerfile, docker-compose.yml, and .dockerignore   |
 
 > **Mongoose projects:** When `--orm mongoose --db mongodb` is used, `src/db.ts` exports `connectDB` / `disconnectDB` helpers instead of a Sequelize instance. No `pg` or `pg-hstore` deps are installed.
 

@@ -47,6 +47,7 @@ program
   .option("-f, --force", "skip overwrite prompts and reinitialize", false)
   .option("-y, --yes", "auto-confirm all prompts (CI/non-interactive mode)", false)
   .option("--dry-run", "preview files that would be created without writing", false)
+  .option("--no-docker", "skip Dockerfile, docker-compose.yml, and .dockerignore generation")
   .description("Initialize a new project with the given name")
   .action(async (projectName, options) => {
     await initCommand(projectName, options);
