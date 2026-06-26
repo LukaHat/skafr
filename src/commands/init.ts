@@ -59,6 +59,7 @@ export const initCommand = async (
         ...(options.orm === SupportedOrms.sequelize || options.orm === SupportedOrms.mongoose || options.orm === SupportedOrms.prisma ? ["src/db.ts"] : []),
         ...(options.orm === SupportedOrms.prisma ? ["prisma/schema.prisma"] : []),
         ...(options.docker ? ["Dockerfile", "docker-compose.yml", ".dockerignore"] : []),
+        ...(options.ci ? [".github/workflows/ci.yml"] : []),
       ];
       if (options.auth) {
         previewFiles.push(
@@ -365,6 +366,12 @@ export const initCommand = async (
 
       const dockerignore = readFileSync(getInitTemplatePath(".dockerignore.template"), "utf-8");
       writeFileSync(join(cwd(), projectName, ".dockerignore"), dockerignore);
+    }
+
+    if (options.ci) {
+      const ciWorkflow = readFileSync(getInitTemplatePath(".github", "workflows", "ci.yml.template"), "utf-8");
+      mkdirSync(join(cwd(), projectName, ".github", "workflows"), { recursive: true });
+      writeFileSync(join(cwd(), projectName, ".github", "workflows", "ci.yml"), ciWorkflow);
     }
   } catch (error) {
     throw new Error(`Failed to scaffold project: ${(error as Error).message}`, { cause: error });

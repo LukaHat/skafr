@@ -48,6 +48,7 @@ program
   .option("-y, --yes", "auto-confirm all prompts (CI/non-interactive mode)", false)
   .option("--dry-run", "preview files that would be created without writing", false)
   .option("--no-docker", "skip Dockerfile, docker-compose.yml, and .dockerignore generation")
+  .option("--no-ci", "skip GitHub Actions CI workflow generation")
   .description("Initialize a new project with the given name")
   .action(async (projectName, options) => {
     await initCommand(projectName, options);
