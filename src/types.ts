@@ -46,4 +46,5 @@ export type InitOptions = {
   yes: boolean;
   dryRun: boolean;
   docker: boolean;
+  ci: boolean;
 };
