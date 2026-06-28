@@ -15,6 +15,7 @@ import { listCommand } from "./commands/list";
 import { configCommand } from "./commands/config";
 import { uninstallCommand } from "./commands/uninstall";
 import { doctorCommand } from "./commands/doctor";
+import { routesCommand } from "./commands/routes";
 
 program
   .name("skafr")
@@ -92,6 +93,14 @@ program
   .description("Validate project setup and dependencies")
   .action((options) => {
     doctorCommand({ json: options.json });
+  });
+
+program
+  .command("routes")
+  .option("--json", "output as JSON", false)
+  .description("List all registered routes from apiRouter.ts")
+  .action((options) => {
+    routesCommand({ json: options.json });
   });
 
 program

@@ -179,6 +179,33 @@ skafr remove post --force
 
 ---
 
+### `skafr routes`
+
+Lists all routes registered in `apiRouter.ts` — method, full path, and handler. Parses statically; no app startup required.
+
+```bash
+skafr routes
+skafr routes --json
+```
+
+```
+METHOD   PATH                                    HANDLER
+─────────────────────────────────────────────────────────────────────────────
+DELETE   /api/users/:id                          userController.deleteUser
+GET      /api/users                              userController.getAllUsers
+GET      /api/users/:id                          userController.getUserById
+POST     /api/users                              userController.createUser
+PUT      /api/users/:id                          userController.updateUser
+```
+
+**Flags:**
+
+| Flag     | Default | Description        |
+| -------- | ------- | ------------------ |
+| `--json` | off     | Output as JSON     |
+
+---
+
 ### `skafr list`
 
 Lists all generated resources and their file status in a columnar table. Pass `--json` for machine-readable output.
