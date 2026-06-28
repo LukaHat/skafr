@@ -19,8 +19,11 @@ const ROUTE_HANDLER = /(\w+\.\w+)\s*\)\s*;?\s*$/;
 const routeMethod = (routerVar: string) =>
   new RegExp(`${routerVar}\\.(get|post|put|patch|delete)\\s*\\(\\s*['"]([^'"]+)['"]`, "i");
 
-const joinPath = (prefix: string, sub: string) =>
-  (prefix + (sub === "/" ? "" : sub)) || "/";
+const joinPath = (prefix: string, sub: string) => {
+  const base = prefix.replace(/\/+$/, "");
+  const tail = sub === "/" ? "" : sub.replace(/^\/+/, "/");
+  return (base + tail) || "/";
+};
 
 const resolveAppPrefix = (appPath: string): string => {
   if (!existsSync(appPath)) return "/api";
@@ -87,7 +90,7 @@ export const routesCommand = (options: { json: boolean }) => {
     const fileName = importedFiles[varName];
     if (!fileName) continue;
     const filePath = join(srcDir, "routes", `${fileName}.ts`);
-    routes.push(...extractRoutesFromFile(filePath, varName, appPrefix + routerPrefix));
+    routes.push(...extractRoutesFromFile(filePath, varName, joinPath(appPrefix, routerPrefix)));
   }
 
   if (options.json) {
