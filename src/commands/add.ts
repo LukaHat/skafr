@@ -5,6 +5,7 @@ import { migrationCommand } from "./migration";
 import { SupportedOrms } from "../types";
 import { select } from "@inquirer/prompts";
 import { buildResourceRegistration, getProjectPaths, getResourceFilePaths, getResourceTemplatePath, patchFile } from "../utils/helper";
+import { patchAgentsMd } from "../utils/agentsMdPatcher";
 
 type ConflictAction = "overwrite" | "skip" | "abort";
 
@@ -67,13 +68,12 @@ export const addCommand = async (
     return;
   }
 
+  assertSkafrProject();
+  const config = loadConfig();
+  const casingVariants = buildResourceContext(resource);
   const written: WrittenEntry[] = [];
 
   try {
-    assertSkafrProject();
-
-    const config = loadConfig();
-    const casingVariants = buildResourceContext(resource);
     const nonInteractive = !options.force && !options.skipExisting && !process.stdin.isTTY;
 
     const {
@@ -233,4 +233,6 @@ export const addCommand = async (
     }
     throw new Error(`Failed to generate resource: ${(error as Error).message}`, { cause: error });
   }
+
+  patchAgentsMd(config);
 };
