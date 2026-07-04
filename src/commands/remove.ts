@@ -3,6 +3,7 @@ import { confirm } from "@inquirer/prompts";
 import { assertSkafrProject, loadConfig } from "../config";
 import { buildResourceContext } from "../templateEngine";
 import { buildResourceRegistration, getProjectPaths, getResourceFilePaths, patchFile } from "../utils/helper";
+import { patchAgentsMd } from "../utils/agentsMdPatcher";
 
 export const removeCommand = async (resource: string, options: { force: boolean }) => {
   try {
@@ -81,6 +82,11 @@ export const removeCommand = async (resource: string, options: { force: boolean 
       );
     }
 
+    try {
+      patchAgentsMd(config);
+    } catch (e) {
+      console.warn(`Warning: could not update AGENTS.md — ${(e as Error).message}`);
+    }
     console.log(`\nResource '${resource}' removed successfully.`);
   } catch (error) {
     throw new Error(`Failed to remove resource: ${(error as Error).message}`, { cause: error });

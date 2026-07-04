@@ -55,3 +55,15 @@ config.PORT
 - Never access `process.env` directly — use `config`
 - Never put business logic in repositories
 - Never skip the error middleware — always call `next(error)` in catch blocks
+
+## Generated Resources
+
+<!-- skafr:resources-start -->
+_No resources yet. Run `skafr add <resource>` to generate your first resource._
+<!-- skafr:resources-end -->
+
+## Registered Routes
+
+<!-- skafr:routes-start -->
+_No routes yet._
+<!-- skafr:routes-end -->
