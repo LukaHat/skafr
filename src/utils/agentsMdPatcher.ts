@@ -10,6 +10,19 @@ const RESOURCES_END = "<!-- skafr:resources-end -->";
 const ROUTES_START = "<!-- skafr:routes-start -->";
 const ROUTES_END = "<!-- skafr:routes-end -->";
 
+const MISSING_SECTIONS_SUFFIX = `
+## Generated Resources
+
+${RESOURCES_START}
+_No resources yet. Run \`skafr add <resource>\` to generate your first resource._
+${RESOURCES_END}
+
+## Registered Routes
+
+${ROUTES_START}
+_No routes yet._
+${ROUTES_END}`;
+
 const replaceBetween = (content: string, start: string, end: string, replacement: string) => {
   const startIdx = content.indexOf(start);
   const endIdx = content.indexOf(end);
@@ -21,7 +34,9 @@ const buildResourcesTable = (config: SkafrConfig): string => {
   const controllersDir = join(process.cwd(), config.srcDir, "controllers");
   if (!existsSync(controllersDir)) return "_No resources yet. Run `skafr add <resource>` to generate your first resource._";
 
-  const controllerFiles = readdirSync(controllersDir).filter((f) => f.endsWith("Controller.ts"));
+  const controllerFiles = readdirSync(controllersDir)
+    .filter((f) => f.endsWith("Controller.ts"))
+    .sort();
   if (controllerFiles.length === 0) return "_No resources yet. Run `skafr add <resource>` to generate your first resource._";
 
   const check = (path: string) => (existsSync(path) ? "✓" : "✗");
@@ -62,6 +77,11 @@ export const patchAgentsMd = (config: SkafrConfig): void => {
   if (!existsSync(agentsPath)) return;
 
   let content = readFileSync(agentsPath, "utf-8");
+
+  if (!content.includes(RESOURCES_START) || !content.includes(ROUTES_START)) {
+    content = content.trimEnd() + MISSING_SECTIONS_SUFFIX + "\n";
+  }
+
   content = replaceBetween(content, RESOURCES_START, RESOURCES_END, buildResourcesTable(config));
   content = replaceBetween(content, ROUTES_START, ROUTES_END, buildRoutesTable(config));
   writeFileSync(agentsPath, content);

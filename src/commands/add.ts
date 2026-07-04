@@ -234,5 +234,9 @@ export const addCommand = async (
     throw new Error(`Failed to generate resource: ${(error as Error).message}`, { cause: error });
   }
 
-  patchAgentsMd(config);
+  try {
+    patchAgentsMd(config);
+  } catch (e) {
+    console.warn(`Warning: could not update AGENTS.md — ${(e as Error).message}`);
+  }
 };

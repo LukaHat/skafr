@@ -82,8 +82,12 @@ export const removeCommand = async (resource: string, options: { force: boolean 
       );
     }
 
+    try {
+      patchAgentsMd(config);
+    } catch (e) {
+      console.warn(`Warning: could not update AGENTS.md — ${(e as Error).message}`);
+    }
     console.log(`\nResource '${resource}' removed successfully.`);
-    patchAgentsMd(config);
   } catch (error) {
     throw new Error(`Failed to remove resource: ${(error as Error).message}`, { cause: error });
   }

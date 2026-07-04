@@ -20,7 +20,7 @@ const routeMethodPattern = (routerVar: string) =>
 
 export const joinPath = (prefix: string, sub: string) => {
   const base = prefix.replace(/\/+$/, "");
-  const tail = sub === "/" ? "" : sub.replace(/^\/+/, "/");
+  const tail = sub === "/" ? "" : "/" + sub.replace(/^\/+/, "");
   return (base + tail) || "/";
 };
 
