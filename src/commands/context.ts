@@ -6,17 +6,16 @@ import { getProjectPaths, getResourceFilePaths } from "../utils/helper";
 import { readRoutes, METHOD_ORDER } from "../utils/routesReader";
 import { version } from "../../package.json";
 
-const BIND_LINE = /container\.bind[^(]*\(TYPES\.(\w+)\)/;
+const TYPES_REF = /TYPES\.(\w+)/g;
 
 const collectDiBindings = (containerPath: string): string[] => {
   if (!existsSync(containerPath)) return [];
-  return readFileSync(containerPath, "utf-8")
-    .split("\n")
-    .flatMap((line) => {
-      const match = line.match(BIND_LINE);
-      return match ? [match[1]] : [];
-    })
-    .sort();
+  const content = readFileSync(containerPath, "utf-8");
+  const bindings = new Set<string>();
+  for (const match of content.matchAll(TYPES_REF)) {
+    bindings.add(match[1]);
+  }
+  return [...bindings].sort();
 };
 
 const collectResources = (config: ReturnType<typeof loadConfig>) => {
