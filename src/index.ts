@@ -16,6 +16,7 @@ import { configCommand } from "./commands/config";
 import { uninstallCommand } from "./commands/uninstall";
 import { doctorCommand } from "./commands/doctor";
 import { routesCommand } from "./commands/routes";
+import { contextCommand } from "./commands/context";
 
 program
   .name("skafr")
@@ -101,6 +102,14 @@ program
   .description("List all registered routes from apiRouter.ts")
   .action((options) => {
     routesCommand({ json: options.json });
+  });
+
+program
+  .command("context")
+  .option("--json", "output as JSON", false)
+  .description("Print full project state — resources, routes, DI bindings, config")
+  .action((options) => {
+    contextCommand({ json: options.json });
   });
 
 program
