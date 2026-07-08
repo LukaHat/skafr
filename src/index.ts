@@ -60,6 +60,7 @@ program
   .command("add <resource> [migrationName]")
   .option("-f, --force", "overwrite existing files", false)
   .option("--skip-existing", "skip files that already exist without prompting", false)
+  .option("--idempotent", "write only missing files, skip existing, never prompt — safe for agent retries", false)
   .option("--no-tests", "skip test file generation")
   .option("--dry-run", "preview files that would be generated without writing", false)
   .option(

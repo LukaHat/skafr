@@ -13,14 +13,14 @@ type WrittenEntry = { path: string; wasNew: boolean; originalContent?: string };
 
 const resolveConflict = async (
   filePath: string,
-  options: { force: boolean; skipExisting: boolean },
+  options: { force: boolean; skipExisting: boolean; idempotent: boolean },
   nonInteractive: boolean
 ): Promise<ConflictAction> => {
   if (options.force) return "overwrite";
-  if (options.skipExisting) return "skip";
+  if (options.skipExisting || options.idempotent) return "skip";
   if (nonInteractive)
     throw new Error(
-      `File already exists: ${filePath}. Use --force to overwrite or --skip-existing to skip.`
+      `File already exists: ${filePath}. Use --force to overwrite, --skip-existing to skip, or --idempotent to write only missing files.`
     );
 
   return select<ConflictAction>({
@@ -59,7 +59,7 @@ const trackWrite = (path: string, written: WrittenEntry[], writeFn: () => void) 
 export const addCommand = async (
   resource: string,
   migrationName: string | undefined,
-  options: { force: boolean; crud: boolean; skipExisting: boolean; tests: boolean; dryRun: boolean }
+  options: { force: boolean; crud: boolean; skipExisting: boolean; idempotent: boolean; tests: boolean; dryRun: boolean }
 ) => {
   if (resource === "migration") {
     if (!migrationName)
@@ -74,7 +74,7 @@ export const addCommand = async (
   const written: WrittenEntry[] = [];
 
   try {
-    const nonInteractive = !options.force && !options.skipExisting && !process.stdin.isTTY;
+    const nonInteractive = !options.force && !options.skipExisting && !options.idempotent && !process.stdin.isTTY;
 
     const {
       modelPath,
