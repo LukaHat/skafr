@@ -8,7 +8,7 @@ if (Number(process.version.split(".")[0].slice(1)) < 22) {
 import { Option, program } from "commander";
 import { version } from "../package.json";
 import { initCommand } from "./commands/init";
-import { AiFilesMode, SupportedDBs, SupportedOrms, SupportedStacks } from "./types";
+import { AiFilesMode, SkafrError, SupportedDBs, SupportedOrms, SupportedStacks } from "./types";
 import { addCommand } from "./commands/add";
 import { removeCommand } from "./commands/remove";
 import { listCommand } from "./commands/list";
@@ -132,13 +132,14 @@ if (process.argv.length < 3) {
     try {
       await program.parseAsync();
     } catch (error) {
-      const err = error as Error & { suggestion?: string };
+      const message = error instanceof Error ? error.message : String(error);
+      const suggestion = error instanceof SkafrError ? error.suggestion : undefined;
       if (process.argv.includes("--json")) {
-        const out: Record<string, string> = { error: err.message };
-        if (err.suggestion) out.suggestion = err.suggestion;
+        const out: Record<string, string> = { error: message };
+        if (suggestion) out.suggestion = suggestion;
         console.error(JSON.stringify(out, null, 2));
       } else {
-        console.error(err.message);
+        console.error(message);
       }
       process.exit(1);
     }

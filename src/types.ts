@@ -29,6 +29,13 @@ export type ResourceContext = {
   resourceRoute: string;
 };
 
+export class SkafrError extends Error {
+  constructor(message: string, public readonly suggestion?: string) {
+    super(message);
+    this.name = "SkafrError";
+  }
+}
+
 export enum AiFilesMode {
   all = "all",
   claude = "claude",

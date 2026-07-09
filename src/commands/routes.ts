@@ -1,6 +1,7 @@
 import { existsSync } from "fs";
 import { join } from "path";
 import { assertSkafrProject, loadConfig } from "../config";
+import { SkafrError } from "../types";
 import { readRoutes, METHOD_ORDER } from "../utils/routesReader";
 
 export const routesCommand = (options: { json: boolean }) => {
@@ -10,9 +11,9 @@ export const routesCommand = (options: { json: boolean }) => {
   const srcDir = join(process.cwd(), config.srcDir);
 
   if (!existsSync(join(srcDir, "routes", "apiRouter.ts"))) {
-    throw Object.assign(
-      new Error(`${config.srcDir}/routes/apiRouter.ts not found.`),
-      { suggestion: "Ensure apiRouter.ts exists in your routes directory." }
+    throw new SkafrError(
+      `${config.srcDir}/routes/apiRouter.ts not found.`,
+      "Ensure apiRouter.ts exists in your routes directory."
     );
   }
 
