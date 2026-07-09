@@ -8,7 +8,7 @@ if (Number(process.version.split(".")[0].slice(1)) < 22) {
 import { Option, program } from "commander";
 import { version } from "../package.json";
 import { initCommand } from "./commands/init";
-import { AiFilesMode, SupportedDBs, SupportedOrms, SupportedStacks } from "./types";
+import { AiFilesMode, SkafrError, SupportedDBs, SupportedOrms, SupportedStacks } from "./types";
 import { addCommand } from "./commands/add";
 import { removeCommand } from "./commands/remove";
 import { listCommand } from "./commands/list";
@@ -125,6 +125,23 @@ program
   .description("Remove .skafrc and log CLI removal instructions")
   .action(uninstallCommand);
 
-program.parse();
-
-if (process.argv.length < 3) program.help();
+if (process.argv.length < 3) {
+  program.help();
+} else {
+  (async () => {
+    try {
+      await program.parseAsync();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const suggestion = error instanceof SkafrError ? error.suggestion : undefined;
+      if (process.argv.includes("--json")) {
+        const out: Record<string, string> = { error: message };
+        if (suggestion) out.suggestion = suggestion;
+        console.error(JSON.stringify(out, null, 2));
+      } else {
+        console.error(message);
+      }
+      process.exit(1);
+    }
+  })();
+}
