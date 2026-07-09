@@ -125,6 +125,22 @@ program
   .description("Remove .skafrc and log CLI removal instructions")
   .action(uninstallCommand);
 
-program.parse();
-
-if (process.argv.length < 3) program.help();
+if (process.argv.length < 3) {
+  program.help();
+} else {
+  (async () => {
+    try {
+      await program.parseAsync();
+    } catch (error) {
+      const err = error as Error & { suggestion?: string };
+      if (process.argv.includes("--json")) {
+        const out: Record<string, string> = { error: err.message };
+        if (err.suggestion) out.suggestion = err.suggestion;
+        console.error(JSON.stringify(out, null, 2));
+      } else {
+        console.error(err.message);
+      }
+      process.exit(1);
+    }
+  })();
+}
