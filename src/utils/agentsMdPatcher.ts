@@ -30,6 +30,14 @@ const replaceBetween = (content: string, start: string, end: string, replacement
   return content.slice(0, startIdx + start.length) + "\n" + replacement + "\n" + content.slice(endIdx);
 };
 
+const JSDOC_DESCRIPTION = /^\/\*\*\s*\n\s*\*\s*(.+?)\s*\n\s*\*\//m;
+
+const extractDescription = (controllerPath: string): string => {
+  if (!existsSync(controllerPath)) return "";
+  const match = readFileSync(controllerPath, "utf-8").match(JSDOC_DESCRIPTION);
+  return match ? match[1] : "";
+};
+
 const buildResourcesTable = (config: SkafrConfig): string => {
   const controllersDir = join(process.cwd(), config.srcDir, "controllers");
   if (!existsSync(controllersDir)) return "_No resources yet. Run `skafr add <resource>` to generate your first resource._";
@@ -43,12 +51,13 @@ const buildResourcesTable = (config: SkafrConfig): string => {
   const rows = controllerFiles.map((file) => {
     const resourceFile = file.replace("Controller.ts", "");
     const paths = getResourceFilePaths(config, buildResourceContext(resourceFile));
-    return `| ${resourceFile} | ${check(paths.modelPath)} | ${check(paths.controllerPath)} | ${check(paths.repositoryPath)} | ${check(paths.routerPath)} | ${check(paths.validatorPath)} |`;
+    const description = extractDescription(paths.controllerPath).replace(/\|/g, "\\|");
+    return `| ${resourceFile} | ${description} | ${check(paths.modelPath)} | ${check(paths.controllerPath)} | ${check(paths.repositoryPath)} | ${check(paths.routerPath)} | ${check(paths.validatorPath)} |`;
   });
 
   return [
-    "| Resource | Model | Controller | Repository | Router | Validator |",
-    "|----------|-------|------------|------------|--------|-----------|",
+    "| Resource | Description | Model | Controller | Repository | Router | Validator |",
+    "|----------|-------------|-------|------------|------------|--------|-----------|",
     ...rows,
   ].join("\n");
 };
