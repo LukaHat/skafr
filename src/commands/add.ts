@@ -59,7 +59,7 @@ const trackWrite = (path: string, written: WrittenEntry[], writeFn: () => void) 
 export const addCommand = async (
   resource: string,
   migrationName: string | undefined,
-  options: { force: boolean; crud: boolean; skipExisting: boolean; idempotent: boolean; tests: boolean; dryRun: boolean }
+  options: { force: boolean; crud: boolean; skipExisting: boolean; idempotent: boolean; tests: boolean; dryRun: boolean; description?: string }
 ) => {
   if (resource === "migration") {
     if (!migrationName)
@@ -165,6 +165,11 @@ export const addCommand = async (
       trackWrite(file.path, written, () =>
         renderTemplate(file.template, casingVariants, file.path)
       );
+    }
+
+    if (options.description && filesToWrite.some((f) => f.path === controllerPath)) {
+      const content = readFileSync(controllerPath, "utf-8");
+      writeFileSync(controllerPath, content.replace(/^(export class )/m, `/** ${options.description} */\n$1`));
     }
 
     const { apiRouter: apiRouterPath, types: typesPath, container: containerPath } = getProjectPaths(config);
