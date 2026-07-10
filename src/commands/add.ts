@@ -168,8 +168,10 @@ export const addCommand = async (
     }
 
     if (options.description && filesToWrite.some((f) => f.path === controllerPath)) {
+      const sanitized = options.description.replace(/\*\//g, "*\\/");
+      const jsdoc = `/**\n * ${sanitized}\n */\n`;
       const content = readFileSync(controllerPath, "utf-8");
-      writeFileSync(controllerPath, content.replace(/^(export class )/m, `/** ${options.description} */\n$1`));
+      writeFileSync(controllerPath, content.replace(/^(export class )/m, `${jsdoc}$1`));
     }
 
     const { apiRouter: apiRouterPath, types: typesPath, container: containerPath } = getProjectPaths(config);

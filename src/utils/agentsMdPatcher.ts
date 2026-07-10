@@ -51,7 +51,7 @@ const buildResourcesTable = (config: SkafrConfig): string => {
   const rows = controllerFiles.map((file) => {
     const resourceFile = file.replace("Controller.ts", "");
     const paths = getResourceFilePaths(config, buildResourceContext(resourceFile));
-    const description = extractDescription(paths.controllerPath);
+    const description = extractDescription(paths.controllerPath).replace(/\|/g, "\\|");
     return `| ${resourceFile} | ${description} | ${check(paths.modelPath)} | ${check(paths.controllerPath)} | ${check(paths.repositoryPath)} | ${check(paths.routerPath)} | ${check(paths.validatorPath)} |`;
   });
 
