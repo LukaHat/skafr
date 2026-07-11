@@ -17,6 +17,7 @@ import { uninstallCommand } from "./commands/uninstall";
 import { doctorCommand } from "./commands/doctor";
 import { routesCommand } from "./commands/routes";
 import { contextCommand } from "./commands/context";
+import { updateCommand } from "./commands/update";
 
 program
   .name("skafr")
@@ -112,6 +113,15 @@ program
   .description("Print full project state — resources, routes, DI bindings, config")
   .action((options) => {
     contextCommand({ json: options.json });
+  });
+
+program
+  .command("update")
+  .option("-f, --force", "overwrite all eligible files without prompting", false)
+  .option("--dry-run", "list files that would be updated without writing", false)
+  .description("Update base project files to the latest skafr templates")
+  .action(async (options) => {
+    await updateCommand(options);
   });
 
 program
