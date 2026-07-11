@@ -1,5 +1,5 @@
-import { existsSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { dirname, join } from "path";
 import { confirm } from "@inquirer/prompts";
 import { assertSkafrProject, loadConfig } from "../config";
 import { SkafrError } from "../types";
@@ -26,7 +26,16 @@ export const updateCommand = async (options: { force: boolean; dryRun: boolean }
 
   const candidates = UPDATABLE_FILES.map(({ subPath, templateSegments }) => {
     const targetPath = join(srcDir, ...subPath);
-    const templateContent = readFileSync(getInitTemplatePath(...templateSegments), "utf-8");
+    const templatePath = getInitTemplatePath(...templateSegments);
+    let templateContent: string;
+    try {
+      templateContent = readFileSync(templatePath, "utf-8");
+    } catch {
+      throw new SkafrError(
+        `Bundled template not found: ${templatePath}`,
+        "Your skafr installation may be corrupted — try reinstalling."
+      );
+    }
     const currentContent = existsSync(targetPath) ? readFileSync(targetPath, "utf-8") : null;
     return {
       label: join(config.srcDir, ...subPath),
@@ -74,6 +83,7 @@ export const updateCommand = async (options: { force: boolean; dryRun: boolean }
         continue;
       }
     }
+    mkdirSync(dirname(file.targetPath), { recursive: true });
     writeFileSync(file.targetPath, file.templateContent);
     console.log(`Updated: ${file.label}`);
     updated.push(file.label);
