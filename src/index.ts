@@ -18,6 +18,7 @@ import { doctorCommand } from "./commands/doctor";
 import { routesCommand } from "./commands/routes";
 import { contextCommand } from "./commands/context";
 import { updateCommand } from "./commands/update";
+import { mcpCommand } from "./commands/mcp";
 
 program
   .name("skafr")
@@ -96,7 +97,7 @@ program
   .option("--json", "output as JSON", false)
   .description("Validate project setup and dependencies")
   .action((options) => {
-    doctorCommand({ json: options.json });
+    if (doctorCommand({ json: options.json })) process.exit(1);
   });
 
 program
@@ -122,6 +123,13 @@ program
   .description("Update base project files to the latest skafr templates")
   .action(async (options) => {
     await updateCommand(options);
+  });
+
+program
+  .command("mcp")
+  .description("Start skafr as an MCP server over stdio")
+  .action(async () => {
+    await mcpCommand();
   });
 
 program

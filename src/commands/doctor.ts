@@ -16,7 +16,7 @@ const worstStatus = (checks: Check[]): CheckStatus => {
   return "pass";
 };
 
-export const doctorCommand = (options: { json: boolean }) => {
+export const doctorCommand = (options: { json: boolean }): boolean => {
   const checks: Check[] = [];
 
   const skafrcPath = join(process.cwd(), ".skafrc");
@@ -127,16 +127,15 @@ export const doctorCommand = (options: { json: boolean }) => {
     }
   }
 
-  output(checks, options.json);
+  return output(checks, options.json);
 };
 
-const output = (checks: Check[], json: boolean) => {
+const output = (checks: Check[], json: boolean): boolean => {
   const status = worstStatus(checks);
 
   if (json) {
     console.log(JSON.stringify({ status, checks }, null, 2));
-    if (status === "fail") process.exit(1);
-    return;
+    return status === "fail";
   }
 
   console.log("\nskafr doctor\n");
@@ -159,5 +158,5 @@ const output = (checks: Check[], json: boolean) => {
     console.log(parts.join(", "));
   }
 
-  if (status === "fail") process.exit(1);
+  return status === "fail";
 };
