@@ -1,9 +1,6 @@
 import { InitOptions, SupportedDBs, SupportedOrms } from "../types";
 
-export const generatePackageJSON = (
-  projectName: string,
-  options: InitOptions,
-) => {
+export const generatePackageJSON = (projectName: string, options: InitOptions) => {
   return {
     name: projectName,
     version: "1.0.0",
@@ -12,6 +9,12 @@ export const generatePackageJSON = (
       build: "tsc",
       start: "node dist/server.js",
       test: 'echo "Error: no test specified" && exit 1',
+      ...(options.orm === SupportedOrms.prisma && {
+        postinstall: "prisma generate",
+        "db:generate": "prisma generate",
+        "db:migrate": "prisma migrate dev",
+        "db:push": "prisma db push",
+      }),
     },
     dependencies: {
       cors: "^2.8.6",
@@ -35,6 +38,18 @@ export const generatePackageJSON = (
       ...(options.orm === SupportedOrms.sequelize && {
         sequelize: "^6.37.7",
       }),
+
+      ...(options.orm === SupportedOrms.sequelize && options.db === SupportedDBs.mysql && {
+        mysql2: "^3.0.0",
+      }),
+
+      ...(options.orm === SupportedOrms.mongoose && {
+        mongoose: "^9.7.1",
+      }),
+
+      ...(options.orm === SupportedOrms.prisma && {
+        "@prisma/client": "^6.0.0",
+      }),
     },
     devDependencies: {
       "@types/express": "^5.0.6",
@@ -46,6 +61,10 @@ export const generatePackageJSON = (
 
       ...(options.auth && {
         "@types/jsonwebtoken": "^9.0.10",
+      }),
+
+      ...(options.orm === SupportedOrms.prisma && {
+        prisma: "^6.0.0",
       }),
     },
   };

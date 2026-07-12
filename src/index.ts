@@ -8,12 +8,17 @@ if (Number(process.version.split(".")[0].slice(1)) < 22) {
 import { Option, program } from "commander";
 import { version } from "../package.json";
 import { initCommand } from "./commands/init";
-import { AiFilesMode, SupportedDBs, SupportedOrms, SupportedStacks } from "./types";
+import { AiFilesMode, SkafrError, SupportedDBs, SupportedOrms, SupportedStacks } from "./types";
 import { addCommand } from "./commands/add";
 import { removeCommand } from "./commands/remove";
 import { listCommand } from "./commands/list";
 import { configCommand } from "./commands/config";
 import { uninstallCommand } from "./commands/uninstall";
+import { doctorCommand } from "./commands/doctor";
+import { routesCommand } from "./commands/routes";
+import { contextCommand } from "./commands/context";
+import { updateCommand } from "./commands/update";
+import { mcpCommand } from "./commands/mcp";
 
 program
   .name("skafr")
@@ -46,6 +51,8 @@ program
   .option("-f, --force", "skip overwrite prompts and reinitialize", false)
   .option("-y, --yes", "auto-confirm all prompts (CI/non-interactive mode)", false)
   .option("--dry-run", "preview files that would be created without writing", false)
+  .option("--no-docker", "skip Dockerfile, docker-compose.yml, and .dockerignore generation")
+  .option("--no-ci", "skip GitHub Actions CI workflow generation")
   .description("Initialize a new project with the given name")
   .action(async (projectName, options) => {
     await initCommand(projectName, options);
@@ -55,6 +62,8 @@ program
   .command("add <resource> [migrationName]")
   .option("-f, --force", "overwrite existing files", false)
   .option("--skip-existing", "skip files that already exist without prompting", false)
+  .option("--idempotent", "write only missing files, skip existing, never prompt — safe for agent retries", false)
+  .option("-d, --description <text>", "annotate the resource with a JSDoc description")
   .option("--no-tests", "skip test file generation")
   .option("--dry-run", "preview files that would be generated without writing", false)
   .option(
@@ -77,9 +86,50 @@ program
 
 program
   .command("list")
+  .option("--json", "output as JSON", false)
   .description("List all generated resources and their file paths")
-  .action(() => {
-    listCommand();
+  .action((options) => {
+    listCommand({ json: options.json });
+  });
+
+program
+  .command("doctor")
+  .option("--json", "output as JSON", false)
+  .description("Validate project setup and dependencies")
+  .action((options) => {
+    if (doctorCommand({ json: options.json })) process.exit(1);
+  });
+
+program
+  .command("routes")
+  .option("--json", "output as JSON", false)
+  .description("List all registered routes from apiRouter.ts")
+  .action((options) => {
+    routesCommand({ json: options.json });
+  });
+
+program
+  .command("context")
+  .option("--json", "output as JSON", false)
+  .description("Print full project state — resources, routes, DI bindings, config")
+  .action((options) => {
+    contextCommand({ json: options.json });
+  });
+
+program
+  .command("update")
+  .option("-f, --force", "overwrite all eligible files without prompting", false)
+  .option("--dry-run", "list files that would be updated without writing", false)
+  .description("Update base project files to the latest skafr templates")
+  .action(async (options) => {
+    await updateCommand(options);
+  });
+
+program
+  .command("mcp")
+  .description("Start skafr as an MCP server over stdio")
+  .action(async () => {
+    await mcpCommand();
   });
 
 program
@@ -94,6 +144,23 @@ program
   .description("Remove .skafrc and log CLI removal instructions")
   .action(uninstallCommand);
 
-program.parse();
-
-if (process.argv.length < 3) program.help();
+if (process.argv.length < 3) {
+  program.help();
+} else {
+  (async () => {
+    try {
+      await program.parseAsync();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const suggestion = error instanceof SkafrError ? error.suggestion : undefined;
+      if (process.argv.includes("--json")) {
+        const out: Record<string, string> = { error: message };
+        if (suggestion) out.suggestion = suggestion;
+        console.error(JSON.stringify(out, null, 2));
+      } else {
+        console.error(message);
+      }
+      process.exit(1);
+    }
+  })();
+}

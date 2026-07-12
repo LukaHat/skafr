@@ -1,0 +1,5 @@
+import type { User } from "@prisma/client";
+
+export type { User };
+export type CreateUserAttributes = Pick<User, "email" | "passwordHash">;
+export type UpdateUserAttributes = Partial<CreateUserAttributes>;

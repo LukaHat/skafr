@@ -1,14 +1,14 @@
 import fs from "fs";
 import path from "path";
-import { SkafrConfig, SupportedStacks } from "./types";
+import { SkafrConfig, SkafrError, SupportedStacks } from "./types";
 
 export const assertSkafrProject = () => {
   const skafrcExists = fs.existsSync(path.join(process.cwd(), ".skafrc"));
   if (!skafrcExists) {
-    console.error(
-      "Not a skafr project (.skafrc not found). Run `skafr init` first.",
+    throw new SkafrError(
+      "Not a skafr project (.skafrc not found).",
+      "Run `skafr init` to initialise a project here."
     );
-    process.exit(1);
   }
 };
 

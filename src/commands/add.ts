@@ -5,6 +5,7 @@ import { migrationCommand } from "./migration";
 import { SupportedOrms } from "../types";
 import { select } from "@inquirer/prompts";
 import { buildResourceRegistration, getProjectPaths, getResourceFilePaths, getResourceTemplatePath, patchFile } from "../utils/helper";
+import { patchAgentsMd } from "../utils/agentsMdPatcher";
 
 type ConflictAction = "overwrite" | "skip" | "abort";
 
@@ -12,14 +13,14 @@ type WrittenEntry = { path: string; wasNew: boolean; originalContent?: string };
 
 const resolveConflict = async (
   filePath: string,
-  options: { force: boolean; skipExisting: boolean },
+  options: { force: boolean; skipExisting: boolean; idempotent: boolean },
   nonInteractive: boolean
 ): Promise<ConflictAction> => {
   if (options.force) return "overwrite";
-  if (options.skipExisting) return "skip";
+  if (options.skipExisting || options.idempotent) return "skip";
   if (nonInteractive)
     throw new Error(
-      `File already exists: ${filePath}. Use --force to overwrite or --skip-existing to skip.`
+      `File already exists: ${filePath}. Use --force to overwrite, --skip-existing to skip, or --idempotent to write only missing files.`
     );
 
   return select<ConflictAction>({
@@ -58,7 +59,7 @@ const trackWrite = (path: string, written: WrittenEntry[], writeFn: () => void) 
 export const addCommand = async (
   resource: string,
   migrationName: string | undefined,
-  options: { force: boolean; crud: boolean; skipExisting: boolean; tests: boolean; dryRun: boolean }
+  options: { force: boolean; crud: boolean; skipExisting: boolean; idempotent: boolean; tests: boolean; dryRun: boolean; description?: string }
 ) => {
   if (resource === "migration") {
     if (!migrationName)
@@ -67,14 +68,13 @@ export const addCommand = async (
     return;
   }
 
+  assertSkafrProject();
+  const config = loadConfig();
+  const casingVariants = buildResourceContext(resource);
   const written: WrittenEntry[] = [];
 
   try {
-    assertSkafrProject();
-
-    const config = loadConfig();
-    const casingVariants = buildResourceContext(resource);
-    const nonInteractive = !options.force && !options.skipExisting && !process.stdin.isTTY;
+    const nonInteractive = !options.force && !options.skipExisting && !options.idempotent && !process.stdin.isTTY;
 
     const {
       modelPath,
@@ -89,10 +89,19 @@ export const addCommand = async (
     const repositoryTemplateName = options.crud
       ? config.orm === SupportedOrms.sequelize
         ? "repository.crud.sequelize.ts.template"
+        : config.orm === SupportedOrms.mongoose
+        ? "repository.crud.mongoose.ts.template"
+        : config.orm === SupportedOrms.prisma
+        ? "repository.crud.prisma.ts.template"
         : "repository.crud.ts.template"
       : "repository.ts.template";
 
-    const modelTemplate = readFileSync(getResourceTemplatePath("model.ts.template"), "utf-8");
+    const modelTemplateName = config.orm === SupportedOrms.mongoose
+      ? "model.mongoose.ts.template"
+      : config.orm === SupportedOrms.prisma
+      ? "model.prisma.ts.template"
+      : "model.ts.template";
+    const modelTemplate = readFileSync(getResourceTemplatePath(modelTemplateName), "utf-8");
     const controllerTemplate = readFileSync(getResourceTemplatePath(options.crud ? "controller.crud.ts.template" : "controller.ts.template"), "utf-8");
     const repositoryTemplate = readFileSync(getResourceTemplatePath(repositoryTemplateName), "utf-8");
     const routerTemplate = readFileSync(getResourceTemplatePath("routes.ts.template"), "utf-8");
@@ -156,6 +165,13 @@ export const addCommand = async (
       trackWrite(file.path, written, () =>
         renderTemplate(file.template, casingVariants, file.path)
       );
+    }
+
+    if (options.description && filesToWrite.some((f) => f.path === controllerPath)) {
+      const sanitized = options.description.replace(/\*\//g, "*\\/");
+      const jsdoc = `/**\n * ${sanitized}\n */\n`;
+      const content = readFileSync(controllerPath, "utf-8");
+      writeFileSync(controllerPath, content.replace(/^(export class )/m, `${jsdoc}$1`));
     }
 
     const { apiRouter: apiRouterPath, types: typesPath, container: containerPath } = getProjectPaths(config);
@@ -223,5 +239,11 @@ export const addCommand = async (
       rollback(written);
     }
     throw new Error(`Failed to generate resource: ${(error as Error).message}`, { cause: error });
+  }
+
+  try {
+    patchAgentsMd(config);
+  } catch (e) {
+    console.warn(`Warning: could not update AGENTS.md — ${(e as Error).message}`);
   }
 };
