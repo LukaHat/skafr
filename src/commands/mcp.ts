@@ -8,17 +8,25 @@ import { listCommand } from "./list";
 import { contextCommand } from "./context";
 import { doctorCommand } from "./doctor";
 
-const captureOutput = async (fn: () => unknown): Promise<string> => {
-  const chunks: string[] = [];
-  const orig = console.log;
-  console.log = (...args: unknown[]) => chunks.push(args.map(String).join(" "));
-  try {
-    await fn();
-  } finally {
-    console.log = orig;
-  }
-  return chunks.join("\n");
+let dispatchMutex = Promise.resolve();
+const withMutex = <T>(fn: () => Promise<T>): Promise<T> => {
+  const next = dispatchMutex.then(fn);
+  dispatchMutex = next.then(() => {}, () => {});
+  return next;
 };
+
+const captureOutput = (fn: () => unknown): Promise<string> =>
+  withMutex(async () => {
+    const chunks: string[] = [];
+    const orig = console.log;
+    console.log = (...args: unknown[]) => chunks.push(args.map(String).join(" "));
+    try {
+      await fn();
+    } finally {
+      console.log = orig;
+    }
+    return chunks.join("\n");
+  });
 
 const TOOLS = [
   {
@@ -114,4 +122,11 @@ export const mcpCommand = async () => {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
+
+  const shutdown = async () => {
+    await server.close();
+    process.exit(0);
+  };
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 };
